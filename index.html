@@ -1285,20 +1285,64 @@ async function proxyGet(path, token, params) {
   } catch(e) { throw e; }
 }
 
+function extractFilterItems(data) {
+  // BW filters API can return the array at different paths
+  if (Array.isArray(data)) return data;
+  // { data: [...] }  or  { items: [...] }  or  { results: [...] }
+  // or  { countries: [...] }  etc.
+  if (data && typeof data === 'object') {
+    for (const key of ['data','items','results','countries','exchanges','currencies','filters']) {
+      if (Array.isArray(data[key])) return data[key];
+    }
+    // Last resort — find the first array value
+    for (const val of Object.values(data)) {
+      if (Array.isArray(val)) return val;
+    }
+  }
+  return [];
+}
+
+function extractFilterId(item) {
+  // BW filters API always uses 'id' as the numeric identifier
+  // Note: do NOT include 'value' here — in BW responses 'value' is the display name
+  for (const f of ['id','exchange_id','country_id','currency_id','filter_id','key']) {
+    if (item[f] != null && item[f] !== '') return item[f];
+  }
+  return null;
+}
+
+function extractFilterName(item, preferCode) {
+  // BW filters API uses "value" as the display name field
+  // e.g. { "type": "countries", "value": "United States", "id": 213 }
+  // Also try all other common field names as fallbacks
+  if (preferCode) {
+    return item.code || item.currency_code || item.iso_code
+        || item.value || item.name || item.display_name || item.label || '';
+  }
+  return item.value || item.name || item.display_name || item.label
+      || item.exchange_name || item.country_name
+      || item.code || item.currency_code || '';
+}
+
 async function fetchFilters(token) {
   const types = [
-    { key: 'countries',  map: resolvedCountries,  nameField: 'name' },
-    { key: 'exchanges',  map: resolvedExchanges,   nameField: 'name' },
-    { key: 'currencies', map: resolvedCurrencies,  nameField: 'code' },
+    { key: 'countries',  map: resolvedCountries,  preferCode: false },
+    { key: 'exchanges',  map: resolvedExchanges,   preferCode: false },
+    { key: 'currencies', map: resolvedCurrencies,  preferCode: true  },
   ];
-  for (const { key, map, nameField } of types) {
+  for (const { key, map, preferCode } of types) {
     setReaderStatus('Fetching ' + key + '…', 'loading');
     try {
       const data = await proxyGet('/api/filters', token, { type: key, language: 'en-US' });
-      const items = Array.isArray(data) ? data : (data?.data || []);
+      console.log('[filters/' + key + '] raw:', JSON.stringify(data).slice(0, 300));
+      const items = extractFilterItems(data);
+      console.log('[filters/' + key + '] items count:', items.length, 'first:', JSON.stringify(items[0]));
       items.forEach(item => {
-        if (item.id != null) map[item.id] = item[nameField] || item.name || item.code || String(item.id);
+        const id = extractFilterId(item);
+        const name = extractFilterName(item, preferCode);
+        if (id != null && name) map[id] = name;
       });
+      console.log('[filters/' + key + '] resolved:', Object.keys(map).length, 'entries');
     } catch(e) {
       console.warn('Filter fetch failed for ' + key + ':', e.message);
     }
@@ -1318,20 +1362,30 @@ async function resolveIndexIds(ids, token) {
 }
 
 function resolveId(paramName, id) {
+  // Try both numeric and string keys since JS objects coerce keys
+  const tryMap = (map, fallback) =>
+    map[id] || map[String(id)] || map[parseInt(id)] || fallback;
+
   if (paramName === 'exchange_country' || paramName === 'domicile_country') {
-    return resolvedCountries[id] || ('Country #' + id);
+    return tryMap(resolvedCountries, 'Country #' + id);
   }
   if (paramName === 'exchange') {
-    return resolvedExchanges[id] || ('Exchange #' + id);
+    return tryMap(resolvedExchanges, 'Exchange #' + id);
   }
   if (paramName === 'index') {
-    return resolvedIndices[id] || ('Index #' + id);
+    return tryMap(resolvedIndices, 'Index #' + id);
   }
   return String(id);
 }
 
 function resolveCurrency(currencyId) {
-  return resolvedCurrencies[currencyId] || CURRENCY_FALLBACK[currencyId] || ('Cur#' + currencyId);
+  // Try numeric key, then string key (APIs can be inconsistent)
+  return resolvedCurrencies[currencyId]
+    || resolvedCurrencies[String(currencyId)]
+    || resolvedCurrencies[parseInt(currencyId)]
+    || CURRENCY_FALLBACK[currencyId]
+    || CURRENCY_FALLBACK[parseInt(currencyId)]
+    || ('Cur#' + currencyId);
 }
 
 function formatValue(rule) {
