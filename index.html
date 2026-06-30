@@ -177,6 +177,60 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
 .gauge-score{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1;white-space:nowrap;text-align:center;width:130px}
 .gauge-lbl{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-top:6px;text-align:center}
 
+/* Wake R&D toggle */
+.wake-toggle-wrap{
+  display:none; /* shown only when Critical */
+  background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(239,68,68,.04));
+  border:1.5px solid rgba(239,68,68,.25);
+  border-radius:var(--r-xl);padding:12px 16px;
+  flex-direction:row;align-items:center;gap:12px;
+  transition:var(--t);
+}
+.wake-toggle-wrap.visible{display:flex}
+.wake-toggle-label{flex:1;font-size:12px;font-weight:600;color:var(--ink2);line-height:1.4}
+.wake-toggle-label span{display:block;font-size:10.5px;font-weight:400;color:var(--ink3);margin-top:2px}
+.wake-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.wake-switch input{opacity:0;width:0;height:0;position:absolute}
+.wake-slider{
+  position:absolute;inset:0;border-radius:999px;
+  background:#d1d5db;cursor:pointer;
+  transition:.25s cubic-bezier(.4,0,.2,1);
+}
+.wake-slider::before{
+  content:'';position:absolute;
+  height:18px;width:18px;left:3px;bottom:3px;
+  background:#fff;border-radius:50%;
+  transition:.25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+}
+.wake-switch input:checked + .wake-slider{background:var(--red)}
+.wake-switch input:checked + .wake-slider::before{transform:translateX(20px)}
+.wake-active-banner{
+  display:none;
+  background:linear-gradient(135deg,#fee2e2,#fecaca);
+  border:1.5px solid #f87171;
+  border-radius:var(--r-lg);padding:10px 14px;
+  font-size:12px;font-weight:700;color:#991b1b;
+  align-items:center;gap:8px;
+  animation:wakeFlash 1.5s ease-in-out 2;
+}
+.wake-active-banner.on{display:flex}
+@keyframes wakeFlash{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 0 6px rgba(239,68,68,.25)}}
+
+/* Score breakdown */
+.breakdown-wrap{display:flex;flex-direction:column;gap:4px}
+.bd-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 10px;border-radius:8px;font-size:11.5px;
+  transition:transform .15s;
+}
+.bd-row:hover{transform:translateX(2px)}
+.bd-label{color:var(--ink2);flex:1}
+.bd-score{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
+  padding:2px 7px;border-radius:6px;min-width:32px;text-align:center;
+}
+
 /* Client list */
 .clist{list-style:none;display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .citem{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--bd);border-radius:9px;font-size:13px;transition:var(--t)}
@@ -402,6 +456,30 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
           <div class="gauge-score" id="gauge-score">—</div>
         </div>
         <div class="gauge-lbl">Severity Level</div>
+      </div>
+
+      <!-- Wake R&D toggle — only visible on Critical -->
+      <div class="wake-toggle-wrap" id="wake-toggle-wrap">
+        <div class="wake-toggle-label">
+          🚨 Wake R&amp;D on-call now
+          <span>Toggle on if this cannot wait until morning</span>
+        </div>
+        <label class="wake-switch">
+          <input type="checkbox" id="wake-toggle"/>
+          <span class="wake-slider"></span>
+        </label>
+      </div>
+
+      <div class="wake-active-banner" id="wake-banner">
+        🔔 R&amp;D ON-CALL WAKE INITIATED — Immediate response required
+      </div>
+
+      <!-- Score breakdown -->
+      <div class="card" id="breakdown-card" style="display:none">
+        <div class="card-head">Score Breakdown</div>
+        <div class="card-body" style="gap:5px">
+          <div class="breakdown-wrap" id="breakdown-body"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -740,7 +818,23 @@ const decideEscalation = () => {
   else if(bi.level==='Partial') severity=isS?'Critical':'High';
   const slaMap={Critical:'FRT 30min • Resolution 12h',High:'FRT 60min • Resolution 24h',Normal:'FRT 24 business hours'};
   const exp=['Service impairment: '+getChip('q1ImpairmentChips'),'Data quality: '+getChip('q2DataChips'),'Impact scope: '+getChip('q3ScopeChips'),'Affected users: '+who,isS?'Strategic client identified':null,'Business impact assessed as '+bi.level].filter(Boolean).join(' • ');
-  return {severity,explanation:exp,sla:slaMap[severity]};
+
+  // Build breakdown rows for display
+  const whoLabels={all:'All customers affected',group:'Multiple customers affected',single:'Single customer affected'};
+  const q1Labels={complete:'Complete outage',partial:'Partial degradation',minor:'Minor/cosmetic'};
+  const q2Labels={incorrect:'Incorrect/misleading data',missing:'Missing/incomplete data',none:'No data issue'};
+  const q3Labels={multi:'Multi-universe scope',market:'Market/sector scope',group:'Group of companies',single:'Single company'};
+  const breakdown=[
+    {label:whoLabels[who]||who, c: who==='all'?'red':who==='group'?'amber':'green'},
+    {label:q1Labels[getChip('q1ImpairmentChips')]||'', c: getChip('q1ImpairmentChips')==='complete'?'red':getChip('q1ImpairmentChips')==='partial'?'amber':'green'},
+    getChip('q2DataChips')!=='none'?{label:q2Labels[getChip('q2DataChips')]||'', c: getChip('q2DataChips')==='incorrect'?'red':'amber'}:null,
+    {label:q3Labels[getChip('q3ScopeChips')]||'', c: getChip('q3ScopeChips')==='multi'?'red':getChip('q3ScopeChips')==='market'?'amber':'green'},
+    isS?{label:'Strategic client — elevated priority', c:'purple'}:null,
+    {label:'Business impact: '+bi.level, c: bi.level==='Major'?'red':bi.level==='Partial'?'amber':'green'},
+    {label:'Result: '+severity, c: severity==='Critical'?'red':severity==='High'?'amber':'green', bold:true},
+  ].filter(Boolean);
+
+  return {severity,explanation:exp,sla:slaMap[severity],breakdown};
 };
 
 const decideJira = () => {
@@ -776,10 +870,21 @@ const calculate = async () => {
       G('badge').className='sev-badge pop '+(cls[severity]||'sb-norm'); G('badge').textContent=severity;
       G('slotReason').textContent=explanation; G('slotSlaText').textContent=sla;
       updateGauge(severity);
+      renderBreakdown(breakdown);
+
+      // Wake R&D toggle — only for Critical
+      const wakeWrap=G('wake-toggle-wrap');
+      if(severity==='Critical'){
+        wakeWrap.classList.add('visible');
+      } else {
+        wakeWrap.classList.remove('visible');
+        // Reset toggle when no longer critical
+        G('wake-toggle').checked=false;
+        G('wake-banner').classList.remove('on');
+      }
     }
     renderStrategicUI(deriveStrategic());
     gsap.fromTo('#sev-result-card',{scale:.97,opacity:.75},{scale:1,opacity:1,duration:.35,ease:'back.out(2)'});
-    // Anime.js ripple on result slots
     anime({targets:'#sev-result-card .rslot',backgroundColor:['rgba(37,99,235,.06)','rgba(248,250,255,.7)'],duration:600,delay:anime.stagger(60),easing:'easeOutQuart'});
   } finally { btn.textContent=orig; btn.disabled=false; }
 };
@@ -822,6 +927,11 @@ const resetAll = () => {
   G('badge').className='sev-badge sb-norm'; G('badge').textContent='Normal';
   G('badge2').className='sev-badge sb-p2'; G('badge2').textContent='P2';
   G('slotCustomer').textContent='—'; G('slotDesc').textContent='—'; G('slotTimestamp').textContent='—'; G('slotSlaText').textContent='—'; G('slotReason').textContent='—';
+  // Reset wake toggle and breakdown
+  if(G('wake-toggle')) G('wake-toggle').checked=false;
+  if(G('wake-banner')) G('wake-banner').classList.remove('on');
+  if(G('wake-toggle-wrap')) G('wake-toggle-wrap').classList.remove('visible');
+  if(G('breakdown-card')) G('breakdown-card').style.display='none';
   G('customer')?.focus();
 };
 
@@ -999,6 +1109,43 @@ function polInit(){
 }
 
 /* ═══════════════════════════════════
+   BREAKDOWN + WAKE R&D
+═══════════════════════════════════ */
+const COLOR_MAP = {
+  red:   {bg:'#fef2f2', tc:'#991b1b', bc:'#fca5a5'},
+  amber: {bg:'#fffbeb', tc:'#92400e', bc:'#fde68a'},
+  green: {bg:'#f0fdf4', tc:'#065f46', bc:'#bbf7d0'},
+  purple:{bg:'#ede9fe', tc:'#5b21b6', bc:'#c4b5fd'},
+};
+
+function renderBreakdown(rows) {
+  const card = G('breakdown-card'), body = G('breakdown-body');
+  if (!card || !body || !rows) return;
+  card.style.display = '';
+  body.innerHTML = rows.map(r => {
+    const cm = COLOR_MAP[r.c] || COLOR_MAP.green;
+    return '<div class="bd-row" style="background:'+cm.bg+';border:1px solid '+cm.bc+'">'
+      + '<span class="bd-label" style="'+(r.bold?'font-weight:700;color:var(--ink)':'')+'">'+(r.label||'')+'</span>'
+      + '<span class="bd-score" style="background:'+cm.bc+';color:'+cm.tc+'">'+cm.tc.includes('991')?'🔴':cm.tc.includes('92400')?'🟡':'🟢'+'</span>'
+      + '</div>';
+  }).join('');
+  anime({targets:body.querySelectorAll('.bd-row'),translateX:[-10,0],opacity:[0,1],duration:280,delay:anime.stagger(45),easing:'easeOutCubic'});
+}
+
+function initWakeToggle() {
+  const toggle = G('wake-toggle'), banner = G('wake-banner');
+  if (!toggle || !banner) return;
+  toggle.addEventListener('change', () => {
+    if (toggle.checked) {
+      banner.classList.add('on');
+      gsap.fromTo(banner, {scale:.9,opacity:0}, {scale:1,opacity:1,duration:.3,ease:'back.out(2)'});
+    } else {
+      banner.classList.remove('on');
+    }
+  });
+}
+
+/* ═══════════════════════════════════
    BOOT
 ═══════════════════════════════════ */
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1009,6 +1156,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();switchMode(btn.dataset.mode);}});
   });
   switchMode('escalation');
+  initWakeToggle();
   G('btnCalc').addEventListener('click',calculate);
   G('btnSnap').addEventListener('click',captureScreenshot);
   G('btnReset').addEventListener('click',resetAll);
