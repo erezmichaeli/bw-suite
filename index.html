@@ -3,1109 +3,1023 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>BW Support Suite</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<title>Bridgewise Support Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<!-- Three.js for sidebar tunnel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- GSAP for transitions -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<!-- Chart.js for gauge -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- html2canvas for screenshot -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Anime.js for micro-interactions -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0f172a;--navy2:#1e293b;--navy3:#334155;
-  --bg:#f1f5f9;--surface:#fff;--text:#0f172a;--muted:#64748b;--subtle:#94a3b8;
-  --border:#e2e8f0;--border2:#cbd5e1;
-  --blue:#2563eb;--blue2:#1d4ed8;--blue-soft:#eff6ff;--blue-border:#bfdbfe;
-  --red:#ef4444;--orange:#f59e0b;--green:#10b981;--purple:#7c3aed;
-  --focus:0 0 0 3px rgba(37,99,235,.2);
-  --r:10px;--r-lg:14px;
-  --sh:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
-  --sh-lg:0 2px 8px rgba(0,0,0,.08),0 16px 40px rgba(0,0,0,.1);
+  --sb:258px;
+  --ink:#07111e;--ink2:#192840;--ink3:#4a5e7a;--ink4:#8596b0;
+  --canvas:#e8ecf5;--surf:#fff;--surf2:#f4f7fc;
+  --bd:#d8e0ef;--bd2:#bfcbdf;
+  --blue:#2563eb;--blue2:#1d4ed8;--blue3:#1e40af;
+  --blue-s:rgba(37,99,235,.07);--blue-b:rgba(37,99,235,.2);
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;--purple:#7c3aed;
+  --r:10px;--r-lg:14px;--r-xl:20px;
+  --sh0:0 1px 4px rgba(7,17,30,.05);
+  --sh:0 2px 14px rgba(7,17,30,.09),0 1px 3px rgba(7,17,30,.05);
+  --sh-lg:0 10px 44px rgba(7,17,30,.13),0 2px 10px rgba(7,17,30,.06);
+  --sh-xl:0 28px 80px rgba(7,17,30,.22),0 4px 20px rgba(7,17,30,.08);
+  --t:.18s cubic-bezier(.4,0,.2,1);
+  --focus:0 0 0 3px rgba(37,99,235,.28);
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;overflow:hidden}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--ink);height:100vh;overflow:hidden;display:flex}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:99px}
 
-/* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--navy);display:flex;flex-direction:column;overflow:hidden}
-.sb-brand{display:flex;align-items:center;gap:10px;padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-logo{width:32px;height:32px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sb-logo svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.sb-name{font-size:13px;font-weight:700;color:#f1f5f9;letter-spacing:-.01em}
-.sb-sub{font-size:10px;color:#64748b;margin-top:1px}
-.sb-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px}
-.sb-section{font-size:10px;font-weight:700;color:#475569;letter-spacing:.08em;text-transform:uppercase;padding:10px 8px 4px}
-.sb-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;border:none;background:transparent;font-family:inherit;color:#94a3b8;font-size:13px;font-weight:500;width:100%;text-align:left;transition:all .15s}
-.sb-item:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
-.sb-item.active{background:rgba(37,99,235,.25);color:#93c5fd}
-.sb-item.active .sb-icon{background:rgba(59,130,246,.2)}
-.sb-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:rgba(255,255,255,.06)}
-.sb-label{flex:1}
-.sb-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;color:#475569}
+/* ── SIDEBAR ───────────────────────────────────────────────── */
+.sidebar{width:var(--sb);flex-shrink:0;position:relative;overflow:hidden;display:flex;flex-direction:column;background:#050d1a;z-index:20}
+#sb-canvas{position:absolute;inset:0;width:100%!important;height:100%!important;pointer-events:none;z-index:0}
+.sb-glass{position:relative;z-index:1;display:flex;flex-direction:column;flex:1;overflow:hidden;background:linear-gradient(180deg,rgba(5,13,26,.9) 0%,rgba(7,11,26,.83) 50%,rgba(5,13,26,.9) 100%)}
+.sb-brand{display:flex;align-items:center;gap:12px;padding:24px 18px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+.sb-logo{width:38px;height:38px;flex-shrink:0;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(59,130,246,.5),0 0 0 1px rgba(59,130,246,.25);position:relative;overflow:hidden}
+.sb-logo::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);pointer-events:none}
+.sb-logo svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1}
+.sb-name{font-size:14px;font-weight:800;color:#e8eef8;letter-spacing:-.02em;line-height:1.2}
+.sb-sub{font-size:9.5px;color:#1e3a5f;margin-top:2px;text-transform:uppercase;letter-spacing:.08em}
+.sb-nav{flex:1;padding:16px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-sec{font-size:9px;font-weight:700;color:#1a3050;letter-spacing:.14em;text-transform:uppercase;padding:10px 8px 4px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;cursor:pointer;border:none;background:transparent;font-family:inherit;color:#4a6080;font-size:13px;font-weight:500;width:100%;text-align:left;transition:var(--t);position:relative;overflow:hidden}
+.sb-item::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:0;background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:0 3px 3px 0;transition:height .3s cubic-bezier(.34,1.56,.64,1)}
+.sb-item:hover{color:#94a3b8;background:rgba(59,130,246,.06)}
+.sb-item.active{color:#93c5fd;background:rgba(37,99,235,.13)}
+.sb-item.active::before{height:65%}
+.sb-icon{width:33px;height:33px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(255,255,255,.04);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.sb-item:hover .sb-icon,.sb-item.active .sb-icon{transform:scale(1.1)}
+.sb-item.active .sb-icon{background:rgba(37,99,235,.2)}
+.sb-lbl{flex:1}
+.sb-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;background:linear-gradient(135deg,rgba(37,99,235,.2),rgba(29,78,216,.2));color:#60a5fa;border:1px solid rgba(37,99,235,.2)}
+.sb-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.03);font-size:9px;color:#1a3050;display:flex;align-items:center;gap:6px}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.6),0 0 0 3px rgba(16,185,129,.15)}
 
-/* MAIN */
-.main{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.screen{flex:1;overflow:hidden;display:none;flex-direction:column}
+/* ── MAIN ──────────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative}
+/* WebGL shader canvas background */
+#main-gl{position:absolute;inset:0;z-index:0;pointer-events:none}
+.topbar{height:56px;flex-shrink:0;background:rgba(255,255,255,.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 24px;gap:12px;position:relative;z-index:5;box-shadow:0 1px 0 var(--bd),0 2px 12px rgba(7,17,30,.05)}
+.tb-icon{font-size:20px}
+.tb-title{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.tb-sub{font-size:11.5px;color:var(--ink3)}
+.tb-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.screen{flex:1;overflow:hidden;display:none;flex-direction:column;position:relative;z-index:1}
 .screen.active{display:flex}
 
-/* TOPBAR */
-.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0}
-.topbar-title{font-size:15px;font-weight:700;letter-spacing:-.01em}
-.topbar-sub{font-size:12px;color:var(--muted)}
-.topbar-right{margin-left:auto;display:flex;gap:7px;align-items:center}
-
-/* HOME */
-#s-home{overflow-y:auto;background:var(--bg)}
-.home-inner{padding:36px 32px;max-width:880px}
-.home-greeting h1{font-size:24px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
-.home-greeting p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:28px}
-.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
-.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;border:none;font-family:inherit;text-align:left;color:inherit;transition:all .18s;box-shadow:var(--sh);position:relative}
-.tool-card:hover{box-shadow:var(--sh-lg);transform:translateY(-2px)}
-.tc-stripe{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;background:var(--stripe,var(--blue))}
-.tc-head{display:flex;align-items:flex-start;justify-content:space-between;margin:4px 0 12px}
-.tc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--icon-bg,#eff6ff)}
-.tc-num{font-size:10px;font-weight:800;color:var(--subtle)}
-.tc-title{font-size:14px;font-weight:700;margin-bottom:5px}
-.tc-desc{font-size:12px;color:var(--muted);line-height:1.55}
-.tc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
-.tc-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.tc-arrow{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--blue);margin-top:12px}
-.tc-arrow svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
-.tool-card:hover .tc-arrow svg{transform:translateX(3px)}
-.home-tip{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;gap:12px;font-size:12px;color:var(--muted);line-height:1.55}
-.home-tip strong{color:var(--text)}
-
-/* BUTTONS */
-.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:6px 12px;border-radius:var(--r);font-weight:600;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
-.btn:hover{border-color:var(--border2);background:var(--bg)}
+/* ── SHARED ─────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r);font-weight:600;font-size:12px;font-family:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--surf);color:var(--ink);transition:var(--t);white-space:nowrap;user-select:none;position:relative;overflow:hidden}
+.btn:hover{border-color:var(--bd2);background:var(--surf2);transform:translateY(-1px);box-shadow:var(--sh)}
+.btn:active{transform:translateY(0)!important;box-shadow:none!important}
 .btn:focus-visible{outline:none;box-shadow:var(--focus)}
-.btn.solid{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn.solid:hover{background:var(--blue2)}
-.btn.success{background:var(--green);border-color:var(--green);color:#fff}
-.btn.ghost-danger{color:var(--red);border-color:transparent;background:transparent}
-.btn.ghost-danger:hover{background:#fef2f2;border-color:#fca5a5}
-.btn.xs{padding:3px 8px;font-size:11px;border-radius:6px}
-.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+.btn.solid{background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:var(--blue);color:#fff;box-shadow:0 2px 10px rgba(37,99,235,.28)}
+.btn.solid:hover{background:linear-gradient(135deg,var(--blue2),var(--blue3));box-shadow:0 5px 20px rgba(37,99,235,.4)}
+.btn.outline{background:transparent;border:1.5px solid var(--blue);color:var(--blue)}
+.btn.outline:hover{background:var(--blue-s)}
+.btn.danger{color:var(--red);border-color:rgba(239,68,68,.3)}
+.btn.danger:hover{background:#fef2f2;border-color:var(--red)}
+.btn.sm{padding:5px 11px;font-size:11.5px;border-radius:8px}
+.btn.xs{padding:3px 8px;font-size:10.5px;border-radius:7px}
+.btn:disabled{opacity:.38;cursor:not-allowed;pointer-events:none}
 
-/* CHIPS */
-.chip-group{display:flex;gap:5px;flex-wrap:wrap}
-.chip{border:1px solid var(--border);background:var(--surface);color:var(--navy3);padding:5px 11px;border-radius:999px;font-weight:600;font-size:11px;cursor:pointer;transition:all .15s;font-family:inherit}
-.chip:hover{border-color:var(--blue-border);background:var(--blue-soft)}
-.chip.active{background:var(--blue-soft);border-color:var(--blue-border);color:var(--blue2)}
+/* Glass card — signature design element */
+.gcard{
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.85);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.95);
+  /* CRITICAL: no overflow:hidden — it clips the typeahead dropdown */
+  display:flex;flex-direction:column;
+  transition:box-shadow .22s,transform .22s;
+}
+.gcard:hover{box-shadow:var(--sh-lg),inset 0 1px 0 rgba(255,255,255,.95)}
+.card{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r-lg);box-shadow:var(--sh0);overflow:hidden;display:flex;flex-direction:column}
+.card-head{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);padding:10px 16px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,var(--surf2),var(--surf));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.card-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card-body-nr{padding:14px 16px;display:flex;flex-direction:column;gap:10px;border-radius:0 0 var(--r-xl) var(--r-xl)}
+label.lbl{display:block;font-size:11.5px;font-weight:600;margin-bottom:5px;color:var(--ink2)}
+input[type=text],input[type=number],input[type=password],textarea,select{width:100%;padding:9px 12px;border:1.5px solid var(--bd);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--surf);color:var(--ink);outline:none;transition:var(--t)}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:var(--focus);background:#fff}
+textarea{resize:vertical;min-height:60px;line-height:1.55}
+.fhint{font-size:10.5px;color:var(--ink3);margin-top:5px;line-height:1.5;padding:6px 10px;background:linear-gradient(135deg,rgba(37,99,235,.04),rgba(37,99,235,.02));border-radius:7px;border-left:2px solid rgba(37,99,235,.25)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--bd);background:rgba(255,255,255,.9);color:var(--ink2);padding:6px 13px;border-radius:999px;font-weight:600;font-size:11.5px;cursor:pointer;transition:var(--t);font-family:inherit;user-select:none;position:relative;overflow:hidden}
+.chip:hover{border-color:rgba(37,99,235,.35);color:var(--blue2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(37,99,235,.12)}
+.chip.active{background:linear-gradient(135deg,rgba(37,99,235,.11),rgba(37,99,235,.07));border-color:rgba(37,99,235,.4);color:var(--blue2);box-shadow:0 2px 10px rgba(37,99,235,.15)}
 
-/* FORM */
-label.lbl{display:block;font-size:11px;font-weight:700;margin-bottom:4px;color:#374151}
-input[type=text],input[type=number],input[type=password],textarea,select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;outline:none;font-family:inherit;background:var(--surface);color:var(--text);transition:border-color .15s,box-shadow .15s}
-input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:var(--focus)}
-textarea{min-height:52px;resize:vertical;line-height:1.4}
-.field-tip{margin-top:5px;font-size:10px;color:var(--muted);line-height:1.5;padding:5px 8px;background:var(--bg);border-radius:6px;border-left:2px solid var(--blue)}
+/* Modals */
+.moverlay{position:fixed;inset:0;background:rgba(7,17,30,.6);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.moverlay.open{opacity:1;pointer-events:all}
+.mbox{background:var(--surf);border-radius:var(--r-xl);width:min(580px,92vw);max-height:86vh;display:flex;flex-direction:column;box-shadow:var(--sh-xl);border:1px solid rgba(255,255,255,.8);transform:scale(.93) translateY(14px);transition:transform .28s cubic-bezier(.34,1.56,.64,1)}
+.moverlay.open .mbox{transform:scale(1) translateY(0)}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--bd)}
+.mhead h3{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.mbody{padding:18px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.mfoot{padding:14px 22px;border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end}
 
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;flex-shrink:0}
-.card.flex1{flex:1;overflow-y:auto;min-height:0}
-.card-head{font-size:11px;font-weight:700;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-.card-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+/* ── SEVERITY ───────────────────────────────────────────────── */
+#s-severity .body{flex:1;overflow:hidden;display:grid;grid-template-columns:1.4fr 1fr;gap:14px;padding:16px 20px}
+.sev-left{display:flex;flex-direction:column;gap:10px;overflow:hidden;min-height:0}
+.sev-scroll{flex:1;overflow-y:auto;min-height:0}
+.sev-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto}
 
-/* SEVERITY */
-#s-severity .panel-body{flex:1;overflow:hidden;display:flex;flex-direction:row;gap:10px;padding:14px 16px}
-.sev-left{flex:1.4;display:flex;flex-direction:column;gap:8px;overflow:hidden;min-height:0;min-width:0}
-.sev-right{flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0}
-.result-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:800}
-.rb-s1,.rb-p0{background:#fee2e2;color:#991b1b;border:1px solid #f87171}
-.rb-s2,.rb-p1{background:#ffedd5;color:#9a3412;border:1px solid #fb923c}
-.rb-s3,.rb-p2{background:#fef9c3;color:#854d0e;border:1px solid #facc15}
-.rb-sN,.rb-p3{background:#f0fdf4;color:#065f46;border:1px solid #4ade80}
-.strat-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#ede9fe;color:#5b21b6;border:1px solid #a78bfa}
-.result-row{border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:var(--bg);font-size:12px;line-height:1.6}
-.result-row strong{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--subtle);display:block;margin-bottom:2px}
+/* Typeahead — position:fixed escapes ALL overflow:hidden ancestors */
 .suggest{position:relative}
-.ta-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);max-height:180px;overflow-y:auto;z-index:99;box-shadow:var(--sh-lg);display:none}
-.ta-item{padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ta-item:hover,.ta-item.hi{background:var(--blue-soft)}
-.strat-dot{width:7px;height:7px;border-radius:50%;background:var(--purple);flex-shrink:0}
+.ta-drop{
+  position:fixed;
+  background:var(--surf);border:1.5px solid var(--bd);
+  border-radius:var(--r-lg);max-height:240px;overflow-y:auto;
+  z-index:9999;
+  box-shadow:var(--sh-lg);display:none;
+  width:220px;
+}
+.ta-item{padding:10px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:background .1s}
+.ta-item:hover,.ta-item.hi{background:rgba(37,99,235,.06)}
+.ta-sdot{width:7px;height:7px;border-radius:50%;background:var(--purple);flex-shrink:0}
 
-/* ══════════════════════════════════════════════
-   ENRICHER SCREEN
-══════════════════════════════════════════════ */
+/* Result card */
+#sev-result-card{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(246,250,255,.95));backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:20px;box-shadow:0 4px 24px rgba(37,99,235,.1),var(--sh),inset 0 1px 0 rgba(255,255,255,1);overflow:hidden}
+.rcard-top{padding:14px 18px 10px;background:linear-gradient(135deg,rgba(37,99,235,.05),rgba(37,99,235,.02));border-bottom:1px solid rgba(37,99,235,.08);display:flex;align-items:center;justify-content:space-between}
+.bw-mark{font-size:9px;font-weight:800;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;opacity:.45}
+.sev-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;font-size:15px;font-weight:800;letter-spacing:.01em;box-shadow:var(--sh)}
+.sev-badge.pop{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes badgePop{0%{transform:scale(.65);opacity:0}65%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.sb-crit{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b;border:1.5px solid #f87171;box-shadow:0 4px 16px rgba(239,68,68,.2)}
+.sb-high{background:linear-gradient(135deg,#ffedd5,#fed7aa);color:#9a3412;border:1.5px solid #fb923c;box-shadow:0 4px 16px rgba(249,115,22,.2)}
+.sb-norm{background:linear-gradient(135deg,#fef9c3,#fef08a);color:#854d0e;border:1.5px solid #facc15;box-shadow:0 4px 16px rgba(234,179,8,.2)}
+.sb-p0{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b;border:1.5px solid #f87171;box-shadow:0 4px 16px rgba(239,68,68,.2)}
+.sb-p1{background:linear-gradient(135deg,#ffedd5,#fed7aa);color:#9a3412;border:1.5px solid #fb923c;box-shadow:0 4px 16px rgba(249,115,22,.2)}
+.sb-p2{background:linear-gradient(135deg,#fef9c3,#fef08a);color:#854d0e;border:1.5px solid #facc15;box-shadow:0 4px 16px rgba(234,179,8,.2)}
+.sb-p3{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#065f46;border:1.5px solid #4ade80;box-shadow:0 4px 16px rgba(16,185,129,.2)}
+.strat-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:999px;font-size:11px;font-weight:700;background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#5b21b6;border:1.5px solid #a78bfa;box-shadow:0 0 16px rgba(124,58,237,.2);animation:stratGlow 2.5s ease-in-out infinite}
+@keyframes stratGlow{0%,100%{box-shadow:0 0 8px rgba(124,58,237,.15)}50%{box-shadow:0 0 22px rgba(124,58,237,.45)}}
+.rslot{background:rgba(248,250,255,.7);border:1px solid rgba(37,99,235,.08);border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.5;transition:var(--t)}
+.rslot:hover{background:rgba(37,99,235,.04);border-color:rgba(37,99,235,.15)}
+.rslot strong{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:3px}
+.rslot span{color:var(--ink2)}
+
+/* Gauge */
+.gauge-wrap{background:rgba(255,255,255,.72);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.85);border-radius:var(--r-xl);box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.95);padding:16px 14px 10px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}
+.gauge-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(37,99,235,.07),transparent 65%);pointer-events:none}
+.gauge-canvas-wrap{position:relative;width:160px;height:88px;margin:0 auto}
+.gauge-score{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1;white-space:nowrap;text-align:center;width:130px}
+.gauge-lbl{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-top:6px;text-align:center}
+
+/* Client list */
+.clist{list-style:none;display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.citem{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--bd);border-radius:9px;font-size:13px;transition:var(--t)}
+.citem:hover{background:var(--surf2)}
+.cname{flex:1;font-weight:500}
+.stog{font-size:10px;padding:3px 9px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid;font-family:inherit;transition:var(--t)}
+.stog.on{background:#ede9fe;color:#5b21b6;border-color:#c4b5fd}
+.stog.off{background:var(--surf2);color:var(--ink3);border-color:var(--bd)}
+.addrow{display:flex;gap:7px}
+.addrow input{flex:1}
+
+/* ── ENRICHER iframe ────────────────────────────────────────── */
 #s-enricher{overflow:hidden}
-#s-enricher .panel-body{flex:1;overflow:hidden;display:flex;flex-direction:row;gap:0;padding:0}
+#s-enricher .body{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:0}
+#enricher-frame{width:100%;flex:1;border:none;display:block}
+.iframe-bar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);flex-shrink:0}
+.iframe-status{font-size:11px;color:var(--ink3)}
+.iframe-url{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);background:var(--surf2);border:1px solid var(--bd);border-radius:6px;padding:3px 8px}
 
-/* Enricher left pane */
-.enr-left{width:300px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.enr-section{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.enr-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
-.enr-env-row{display:flex;gap:6px}
-.enr-env-row select{flex:1}
-.file-drop{border:2px dashed var(--border);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
-.file-drop:hover,.file-drop.drag{border-color:var(--blue);background:var(--blue-soft)}
-.file-drop-icon{font-size:24px;margin-bottom:6px}
-.file-drop p{font-size:12px;color:var(--muted);margin:0}
-.file-drop p strong{color:var(--blue)}
-.file-loaded{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:8px}
-.file-loaded-icon{font-size:18px}
-.file-loaded-info{flex:1;min-width:0}
-.file-loaded-name{font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-loaded-meta{font-size:10px;color:var(--muted)}
-.token-row{display:flex;gap:6px;align-items:flex-end}
-.token-row input{flex:1;font-family:monospace}
+/* ── POLICY ─────────────────────────────────────────────────── */
+#s-policy .body{flex:1;overflow:hidden;display:flex;flex-direction:row;gap:0}
+.pol-left{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.pol-right{width:360px;flex-shrink:0;background:#0d1117;display:flex;flex-direction:column;overflow:hidden}
+.pol-tb{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:11px 14px;background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:var(--r-xl);flex-shrink:0}
+.pol-tb select{padding:6px 9px;border:1.5px solid var(--bd);border-radius:8px;font-size:12px;font-family:inherit;background:var(--surf)}
+.tsep{width:1px;height:22px;background:var(--bd)}
+.or-div{display:flex;align-items:center;gap:10px;margin:4px 0}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--bd)}
+.or-pill{font-size:10px;font-weight:800;padding:3px 11px;border-radius:999px;background:#fef9c3;color:#92400e;border:1px solid #fde68a}
+.pgcard{background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh0)}
+.pghead{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,var(--surf2),var(--surf))}
+.pglabel{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.and-badge{font-size:9px;font-weight:800;padding:2px 7px;border-radius:999px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.pgbody{padding:11px 15px;display:flex;flex-direction:column;gap:7px}
+.pgempty{font-size:12px;color:var(--ink3);font-style:italic}
+.rrow{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;padding:10px 12px;background:var(--surf2);border:1.5px solid var(--bd);border-radius:9px;transition:var(--t)}
+.rrow:hover{border-color:rgba(37,99,235,.25);background:rgba(37,99,235,.03)}
+.rfield{display:flex;flex-direction:column;gap:3px}
+.rfield label{font-size:9.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em}
+.rfield select,.rfield input{padding:6px 8px;border:1.5px solid var(--bd);border-radius:7px;font-size:12px;font-family:inherit;background:var(--surf)}
+.rfield select:focus,.rfield input:focus{outline:none;box-shadow:var(--focus);border-color:var(--blue)}
+.psel{min-width:158px}.osel{min-width:148px}.vinp{width:92px}.linp{width:182px}.cinp{width:70px}
+.pjhead{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.pjtitle{font-size:11.5px;font-weight:600;color:#6e7681;font-family:'JetBrains Mono',monospace}
+.pjstats{display:flex;gap:12px;padding:7px 18px;border-bottom:1px solid rgba(255,255,255,.04);flex-shrink:0}
+.pjstat{font-size:10px;color:#3d444d}
+.pjstat strong{color:#656d76}
+.gbtn{background:transparent;border:1px solid rgba(255,255,255,.1);color:#8b949e;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:var(--t)}
+.gbtn:hover{background:rgba(255,255,255,.06);color:#c9d1d9}
+#pol-json{flex:1;overflow:auto;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.75;color:#e6edf3;white-space:pre;margin:0}
+.jk{color:#79c0ff}.js{color:#a5d6ff}.jn{color:#79c0ff}.jb{color:#56d364}.jnull{color:#8b949e}
+.impta{width:100%;height:150px;font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px;border:1.5px solid var(--bd);border-radius:var(--r);resize:vertical;background:var(--surf2)}
 
-/* Pipeline list */
-.enr-pipeline{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
-.pipeline-empty{text-align:center;padding:24px 12px;color:var(--subtle);font-size:12px}
-.step-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.step-card-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface);border-bottom:1px solid var(--border)}
-.step-num{width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-name{flex:1;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.step-env-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.env-prod{background:#10b981}.env-stage{background:#f59e0b}.env-dev{background:#6366f1}
-.step-body{padding:8px 10px;font-size:11px;color:var(--muted)}
-.step-body .step-url{font-family:monospace;font-size:10px;color:var(--subtle);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.step-tags{display:flex;gap:4px;flex-wrap:wrap}
-.step-tag{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600}
-.step-tag.in{background:#dbeafe;color:#1e40af}
-.step-tag.out{background:#dcfce7;color:#166534}
-.enr-pipeline-actions{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:6px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-/* Enricher center: step builder */
-.enr-builder{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.builder-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh)}
-.builder-card-head{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
-.builder-card-body{padding:14px;display:flex;flex-direction:column;gap:10px}
-.param-mapping-row{display:flex;gap:8px;align-items:flex-end}
-.param-mapping-row label.lbl{white-space:nowrap}
-.param-label-col{min-width:120px;flex-shrink:0}
-.mapping-arrow{font-size:14px;color:var(--subtle);flex-shrink:0;padding-bottom:8px}
-.output-mapping-row{display:flex;gap:6px;align-items:center}
-.output-mapping-row input{flex:1}
-.output-sep{font-size:11px;color:var(--subtle);flex-shrink:0}
-
-/* Enricher right: run panel */
-.enr-run{width:280px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.run-section{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.run-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.stat-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
-.stat-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);margin-bottom:2px}
-.stat-val{font-size:18px;font-weight:800;color:var(--text);line-height:1}
-.stat-val.green{color:var(--green)}
-.stat-val.red{color:var(--red)}
-.stat-val.blue{color:var(--blue)}
-.progress-bar-wrap{height:8px;background:var(--bg);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
-.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:999px;transition:width .3s ease;width:0%}
-.log-area{flex:1;overflow-y:auto;padding:10px 14px;font-family:monospace;font-size:10px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
-.log-line{padding:1px 0;line-height:1.5}
-.log-line.ok{color:var(--green)}
-.log-line.err{color:var(--red)}
-.log-line.info{color:var(--blue)}
-
-/* POLICY */
-#s-policy .panel-body{flex:1;overflow:hidden;display:flex;flex-direction:row;gap:0;padding:0}
-.pol-left{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.pol-right{width:320px;flex-shrink:0;background:#13131f;display:flex;flex-direction:column;overflow:hidden}
-.pol-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg)}
-.pol-toolbar select{padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--surface)}
-.pol-toolbar select:focus{outline:none;box-shadow:var(--focus);border-color:var(--blue)}
-.tsep{width:1px;height:20px;background:var(--border)}
-.or-div{display:flex;align-items:center;gap:8px;margin:4px 0}
-.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border)}
-.or-pill{font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fef9c3;color:#92400e;border:1px solid #fde68a}
-.pol-group-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh)}
-.pol-ghead{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg)}
-.pol-glabel{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
-.and-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
-.pol-gbody{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
-.pol-empty{font-size:12px;color:var(--subtle);font-style:italic}
-.rule-row{display:flex;gap:7px;align-items:flex-end;flex-wrap:wrap;padding:9px 11px;background:var(--bg);border:1px solid var(--border);border-radius:8px}
-.rule-field{display:flex;flex-direction:column;gap:3px}
-.rule-field label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.rule-field select,.rule-field input{padding:5px 7px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;background:var(--surface)}
-.rule-field select:focus,.rule-field input:focus{outline:none;box-shadow:var(--focus);border-color:var(--blue)}
-.param-sel{min-width:150px}.op-sel{min-width:140px}.val-inp{width:90px}.list-inp{width:175px}.cur-inp{width:68px}
-.rule-spacer{flex:1}
-.pj-head{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
-.pj-title{font-size:12px;font-weight:700;color:#cbd5e1}
-.pj-stats{display:flex;gap:10px;padding:7px 15px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0}
-.pj-stat{font-size:10px;color:#475569}
-.pj-stat strong{color:#94a3b8}
-.ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#cbd5e1;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
-.ghost:hover{background:rgba(255,255,255,.08)}
-pre#pol-json{flex:1;overflow:auto;padding:13px 15px;font-family:'Consolas','Monaco',monospace;font-size:11px;line-height:1.65;color:#d4d4d4;white-space:pre-wrap;word-break:break-word;margin:0}
-.j-key{color:#9cdcfe}.j-str{color:#ce9178}.j-num{color:#b5cea8}.j-bool{color:#569cd6}
-
-/* MODALS */
-.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s}
-.modal-ov.open{opacity:1;pointer-events:all}
-.modal-box{background:var(--surface);border-radius:16px;width:min(540px,92vw);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border)}
-.modal-head h3{font-size:14px;font-weight:800;margin:0}
-.modal-body{padding:15px 18px;overflow-y:auto;flex:1}
-.modal-foot{padding:11px 18px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end}
-.client-list{list-style:none;display:flex;flex-direction:column;gap:4px;margin-top:10px}
-.client-item{display:flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px}
-.client-name{flex:1;font-weight:600}
-.strat-toggle{font-size:10px;padding:3px 8px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid;font-family:inherit;transition:all .15s}
-.strat-toggle.on{background:#ede9fe;color:#5b21b6;border-color:#c4b5fd}
-.strat-toggle.off{background:var(--bg);color:var(--subtle);border-color:var(--border)}
-.add-row{display:flex;gap:7px}
-.add-row input{flex:1}
-.import-ta{width:100%;height:150px;font-family:monospace;font-size:12px;padding:9px;border:1px solid var(--border);border-radius:8px;resize:vertical;background:var(--bg)}
-.import-ta:focus{outline:none;box-shadow:var(--focus);border-color:var(--blue)}
-.import-err{font-size:12px;color:var(--red);background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:7px 10px;margin-top:6px}
-
-@media(max-width:1100px){.enr-run{display:none}}
-@media(max-width:900px){.tool-grid{grid-template-columns:1fr}.pol-right{display:none}#s-severity .panel-body{flex-direction:column;overflow-y:auto}.enr-left{width:240px}}
-@media(max-width:680px){.sidebar{width:56px}.sb-label,.sb-name,.sb-sub,.sb-section{display:none}.sb-brand{justify-content:center;padding:14px 8px}.sb-item{justify-content:center}.sb-icon{width:34px;height:34px}}
-@media(prefers-reduced-motion:reduce){*,::before,::after{transition-duration:.01ms!important}}
+@media(max-width:1000px){#s-severity .body{grid-template-columns:1fr;overflow-y:auto}.sev-right{overflow-y:visible}.pol-right{display:none}}
+@media(max-width:720px){.sidebar{width:60px}.sb-name,.sb-sub,.sb-lbl,.sb-sec,.sb-badge,.sb-footer{display:none}.sb-brand{justify-content:center;padding:16px 8px}.sb-item{justify-content:center}}
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
-  <div class="sb-brand">
-    <div class="sb-logo"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-    <div><div class="sb-name">BW Suite</div><div class="sb-sub">Support Tools</div></div>
+  <canvas id="sb-canvas"></canvas>
+  <div class="sb-glass">
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div><div class="sb-name">BW Suite</div><div class="sb-sub">Support Tools</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">Tools</div>
+      <button class="sb-item active" data-screen="severity"><div class="sb-icon">🚨</div><span class="sb-lbl">Severity Calculator</span></button>
+      <button class="sb-item" data-screen="enricher"><div class="sb-icon">⚡</div><span class="sb-lbl">Bulk API Enricher</span><span class="sb-badge">LIVE</span></button>
+      <button class="sb-item" data-screen="policy"><div class="sb-icon">📋</div><span class="sb-lbl">Policy Builder</span></button>
+    </nav>
+    <div class="sb-footer"><div class="sb-dot"></div>v3.1 · Bridgewise</div>
   </div>
-  <nav class="sb-nav">
-    <div class="sb-section">Navigation</div>
-    <button class="sb-item active" data-screen="home"><div class="sb-icon">🏠</div><span class="sb-label">Home</span></button>
-    <div class="sb-section">Tools</div>
-    <button class="sb-item" data-screen="severity"><div class="sb-icon">🚨</div><span class="sb-label">Severity Calc</span></button>
-    <button class="sb-item" data-screen="enricher"><div class="sb-icon">⚡</div><span class="sb-label">Bulk Enricher</span></button>
-    <button class="sb-item" data-screen="policy"><div class="sb-icon">📋</div><span class="sb-label">Policy Builder</span></button>
-  </nav>
-  <div class="sb-footer">Bridgewise Internal</div>
 </aside>
 
 <div class="main">
+<!-- WebGL background -->
+<canvas id="main-gl"></canvas>
 
-<!-- HOME -->
-<div class="screen active" id="s-home">
-  <div class="home-inner">
-    <div class="home-greeting">
-      <h1>Support Tools Suite</h1>
-      <p>Internal tooling for the Bridgewise support team. Click any tool to get started.</p>
-    </div>
-    <div class="tool-grid">
-      <button class="tool-card" data-screen="severity">
-        <div class="tc-stripe" style="--stripe:#ef4444"></div>
-        <div class="tc-head"><div class="tc-icon" style="background:#fef2f2">🚨</div><span class="tc-num">01</span></div>
-        <div class="tc-title">Severity Calculator</div>
-        <div class="tc-desc">Classify escalations and Jira priorities. Strategic client detection and localStorage persistence.</div>
-        <div class="tc-tags"><span class="tc-tag">Escalation</span><span class="tc-tag">Jira</span><span class="tc-tag">SLA</span></div>
-        <div class="tc-arrow">Open tool <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
-      </button>
-      <button class="tool-card" data-screen="enricher">
-        <div class="tc-stripe" style="--stripe:#f59e0b"></div>
-        <div class="tc-head"><div class="tc-icon" style="background:#fffbeb">⚡</div><span class="tc-num">02</span></div>
-        <div class="tc-title">Bulk API Enricher</div>
-        <div class="tc-desc">Build multi-step pipelines, upload a CSV, call Bridgewise REST APIs per row, and download enriched results.</div>
-        <div class="tc-tags"><span class="tc-tag">CSV</span><span class="tc-tag">Pipeline</span><span class="tc-tag">REST API</span></div>
-        <div class="tc-arrow">Open tool <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
-      </button>
-      <button class="tool-card" data-screen="policy">
-        <div class="tc-stripe" style="--stripe:#7c3aed"></div>
-        <div class="tc-head"><div class="tc-icon" style="background:#f5f3ff">📋</div><span class="tc-num">03</span></div>
-        <div class="tc-title">Policy Builder</div>
-        <div class="tc-desc">Visual AND/OR investment screening rules with live JSON preview, presets, import and export.</div>
-        <div class="tc-tags"><span class="tc-tag">Policy</span><span class="tc-tag">JSON</span><span class="tc-tag">Filters</span></div>
-        <div class="tc-arrow">Open tool <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
-      </button>
-    </div>
-    <div class="home-tip">💡&nbsp; <span><strong>Tip:</strong> Client data in the Severity Calculator is saved in your browser's localStorage — add clients and flag them as Strategic via the ⚙ Clients button. Persists across sessions.</span></div>
-  </div>
-</div>
-
-<!-- SEVERITY -->
-<div class="screen" id="s-severity">
+<!-- ═══ SEVERITY ═══ -->
+<div class="screen active" id="s-severity">
   <div class="topbar">
-    <span class="topbar-title">🚨 Severity Calculator</span>
-    <span class="topbar-sub">Escalation & Jira prioritization</span>
-    <div class="topbar-right">
-      <div style="display:flex;gap:5px">
-        <button class="chip active" id="modeEsc">Escalation</button>
-        <button class="chip" id="modeJira">Jira Priority</button>
-      </div>
-      <button class="btn" id="btnManageClients">⚙ Clients</button>
-    </div>
+    <span class="tb-icon">🚨</span>
+    <span class="tb-title">Severity Calculator</span>
+    <span class="tb-sub">Escalation &amp; Jira Prioritization · Bridgewise Support</span>
+    <div class="tb-right"><button class="btn sm" id="btnManageClients">⚙ Manage Clients</button></div>
   </div>
-  <div class="panel-body">
+  <div class="body">
     <div class="sev-left">
-      <div class="card">
-        <div class="card-head">Context</div>
-        <div class="card-body">
+      <!-- Context card — gcard WITHOUT overflow:hidden so dropdown escapes -->
+      <div class="gcard">
+        <div class="card-head" style="border-radius:var(--r-xl) var(--r-xl) 0 0">Context</div>
+        <div class="card-body-nr">
           <div class="suggest">
             <label class="lbl">Customer / Tenant</label>
-            <input id="sev-customer" type="text" placeholder="Start typing customer name…" autocomplete="off"/>
-            <div class="ta-dropdown" id="sev-dd" role="listbox"></div>
-            <div id="sev-strat-hint" style="display:none;margin-top:5px"><span class="strat-pill">★ Strategic Client</span></div>
+            <input id="customer" type="text" placeholder="Start typing customer name..." autocomplete="off"/>
+            <div class="ta-drop" id="customerList" role="listbox"></div>
+            <div id="strategicHint" style="display:none;margin-top:6px"><span class="strat-pill">⭐ Strategic Client — auto-detected</span></div>
           </div>
           <div>
             <label class="lbl">Issue Description</label>
-            <textarea id="sev-desc" placeholder="Where it appears, frequency, examples…"></textarea>
+            <textarea id="desc" placeholder="Describe the client's issue — where it appears, frequency, examples..."></textarea>
           </div>
         </div>
       </div>
-      <div class="card flex1" id="esc-panel">
-        <div class="card-head">Escalation Assessment</div>
+
+      <!-- Mode tabs -->
+      <div style="display:flex;gap:6px" class="mode" role="tablist">
+        <button class="chip active" data-mode="escalation" role="tab">Escalation Mode</button>
+        <button class="chip" data-mode="jira" role="tab">Jira Prioritization</button>
+      </div>
+
+      <!-- Escalation Panel -->
+      <div class="gcard sev-scroll mode-escalation" id="escalation-panel" style="overflow:hidden">
+        <div class="card-head">Escalation Assessment (On-call Activation)</div>
         <div class="card-body">
-          <div><label class="lbl">Who is impacted?</label>
-            <div class="chip-group" id="whoChips">
+          <div>
+            <label class="lbl">Who is impacted by this issue?</label>
+            <div class="chips" id="whoChips">
               <button class="chip" data-val="all">All Customers</button>
-              <button class="chip" data-val="group">Multiple</button>
-              <button class="chip active" data-val="single">Single</button>
+              <button class="chip" data-val="group">Multiple Customers</button>
+              <button class="chip active" data-val="single">Single Customer</button>
             </div>
           </div>
-          <div><label class="lbl">Q1 — Service Impairment</label>
-            <div class="chip-group" id="q1Chips">
+          <div>
+            <label class="lbl">Q1. Service Impairment Level</label>
+            <div class="chips" id="q1ImpairmentChips">
               <button class="chip" data-val="complete">Complete Outage</button>
-              <button class="chip active" data-val="partial">Partial</button>
-              <button class="chip" data-val="minor">Minor</button>
+              <button class="chip active" data-val="partial">Partial Degradation</button>
+              <button class="chip" data-val="minor">Minor / Cosmetic</button>
             </div>
-            <div class="field-tip"><strong>Complete:</strong> endpoints fail entirely · <strong>Partial:</strong> unreliable/slow · <strong>Minor:</strong> cosmetic only</div>
+            <div class="fhint"><strong>Complete Outage:</strong> Client cannot operate because core services or any critical dependency they rely on are unavailable. This could be all Bridgewise services down, or a single key API/endpoint/widget failing in a way that fully blocks their workflow.<br/><br/><strong>Partial Degradation:</strong> Core services are available but some functionality is impaired (e.g., only some widgets, an endpoint variant, or a subset of actions respond). Client can work, but with reduced capability.<br/><br/><strong>Minor / Cosmetic:</strong> Core workflows function; issues are visual/UI/translation quirks or isolated behavior that doesn't impact the client's core business outcomes.</div>
           </div>
-          <div><label class="lbl">Q2 — Data Quality</label>
-            <div class="chip-group" id="q2Chips">
-              <button class="chip" data-val="incorrect">Incorrect</button>
-              <button class="chip active" data-val="missing">Missing</button>
+          <div>
+            <label class="lbl">Q2. Data Quality Issue</label>
+            <div class="chips" id="q2DataChips">
+              <button class="chip" data-val="incorrect">Incorrect / Misleading</button>
+              <button class="chip active" data-val="missing">Missing / Incomplete</button>
               <button class="chip" data-val="none">No Data Issue</button>
             </div>
-            <div class="field-tip"><strong>Incorrect:</strong> wrong values · <strong>Missing:</strong> coverage gaps · <strong>None:</strong> service/UI only</div>
+            <div class="fhint"><strong>Incorrect:</strong> Wrong values/signals present (higher risk impact). <strong>Missing:</strong> Coverage gaps; severity depends on scope. <strong>No data issue:</strong> Service/UI related only.</div>
           </div>
-          <div><label class="lbl">Q3 — Scope</label>
-            <div class="chip-group" id="q3Chips">
-              <button class="chip" data-val="multi">Multi-universe</button>
-              <button class="chip" data-val="market">Market / Sector</button>
+          <div>
+            <label class="lbl">Q3. Scope of Impact</label>
+            <div class="chips" id="q3ScopeChips">
+              <button class="chip" data-val="multi">Multi-universe / Broad</button>
+              <button class="chip" data-val="market">Market / Sector Level</button>
               <button class="chip active" data-val="group">Group of Companies</button>
-              <button class="chip" data-val="single">Single Company</button>
+              <button class="chip" data-val="single">Single Company Only</button>
             </div>
+            <div class="fhint">Use the broadest scope observed at the client (multi-universe ≈ hundreds of tickers; group ≈ handful of companies).</div>
           </div>
         </div>
       </div>
-      <div class="card flex1" id="jira-panel" style="display:none">
-        <div class="card-head">Jira Prioritization</div>
+
+      <!-- Jira Panel -->
+      <div class="gcard sev-scroll mode-jira" id="jira-panel" style="display:none;overflow:hidden">
+        <div class="card-head">Jira Prioritization Assessment</div>
         <div class="card-body">
-          <div><label class="lbl">Client Urgency</label>
-            <div class="chip-group" id="urgencyChips">
-              <button class="chip" data-val="high">High</button>
-              <button class="chip active" data-val="low">Low</button>
+          <div>
+            <label class="lbl">Client Urgency Level</label>
+            <div class="chips" id="urgencyChips">
+              <button class="chip" data-val="high">High Urgency</button>
+              <button class="chip active" data-val="low">Low Urgency</button>
               <button class="chip" data-val="unknown">Unknown</button>
             </div>
           </div>
-          <div><label class="lbl">Product Area</label>
-            <div class="chip-group" id="affectChips">
-              <button class="chip" data-val="appearance">Visual</button>
-              <button class="chip active" data-val="api">API / Data</button>
-              <button class="chip" data-val="core">Core Logic</button>
+          <div>
+            <label class="lbl">Product Area Affected</label>
+            <div class="chips" id="affectChips">
+              <button class="chip" data-val="appearance">Visual Appearance</button>
+              <button class="chip" data-val="translation">Translation / Text</button>
+              <button class="chip" data-val="ui">UI Behavior</button>
+              <button class="chip active" data-val="api">API / Data Layer</button>
             </div>
           </div>
-          <div><label class="lbl">Workaround?</label>
-            <div class="chip-group" id="workaroundChips">
+          <div>
+            <label class="lbl">Workaround Available?</label>
+            <div class="chips" id="workaroundChips">
               <button class="chip" data-val="no">No Workaround</button>
-              <button class="chip active" data-val="yes">Workaround Exists</button>
+              <button class="chip active" data-val="yes">Workaround Available</button>
             </div>
+            <div style="font-size:11px;color:var(--ink3);margin-top:6px">Strategic client status is automatically detected from customer database</div>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:7px;align-items:center;flex-shrink:0">
+
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;padding:2px 0">
         <button class="btn solid" id="btnCalc">Calculate Severity</button>
-        <button class="btn" id="btnCopySev">📋 Copy</button>
-        <button class="btn" id="btnReset">Reset</button>
-        <span style="font-size:10px;color:var(--muted)">or Ctrl+Enter</span>
+        <button class="btn" id="btnSnap">📸 Screenshot Result</button>
+        <button class="btn" id="btnReset">Reset Form</button>
+        <span style="font-size:10px;color:var(--ink3)">Ctrl+Enter</span>
       </div>
     </div>
+
     <div class="sev-right">
-      <div class="card">
-        <div class="card-head">Assessment Result</div>
-        <div class="card-body" style="gap:8px">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <div id="sev-badge" class="result-badge rb-s3">Normal</div>
-            <div id="sev-badge2" class="result-badge rb-p2" style="display:none">P2</div>
-            <div id="sev-strat-badge" class="strat-pill" style="display:none">★ Strategic</div>
+      <div id="sev-result-card">
+        <div class="rcard-top">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:38px">
+            <div id="badge" class="sev-badge sb-norm" role="status" aria-live="polite">Normal</div>
+            <div id="badge2" class="sev-badge sb-p2" role="status" aria-live="polite" style="display:none">P2</div>
+            <div class="strat-pill" id="strategicBadge" style="display:none">⭐ Strategic</div>
           </div>
-          <div class="result-row"><strong>Customer</strong><span id="r-customer">—</span></div>
-          <div class="result-row"><strong>Description</strong><span id="r-desc">—</span></div>
-          <div class="result-row"><strong>Timestamp</strong><span id="r-ts">—</span></div>
-          <div class="result-row" id="r-sla-row"><strong>SLA Target</strong><span id="r-sla">—</span></div>
-          <div class="result-row"><strong>Reasoning</strong><span id="r-reason">—</span></div>
+          <div class="bw-mark">Bridgewise</div>
         </div>
+        <div style="padding:14px 18px;display:flex;flex-direction:column;gap:8px">
+          <div class="rslot"><strong>Customer</strong><span id="slotCustomer">—</span></div>
+          <div class="rslot"><strong>Description</strong><span id="slotDesc">—</span></div>
+          <div class="rslot"><strong>Timestamp</strong><span id="slotTimestamp">—</span></div>
+          <div class="rslot" id="slotSLA"><strong>SLA Target</strong><span id="slotSlaText">—</span></div>
+          <div class="rslot"><strong>Assessment Logic</strong><span id="slotReason">—</span></div>
+        </div>
+      </div>
+
+      <div class="gauge-wrap" id="gauge-wrap">
+        <div class="gauge-canvas-wrap">
+          <canvas id="sev-gauge" width="160" height="88"></canvas>
+          <div class="gauge-score" id="gauge-score">—</div>
+        </div>
+        <div class="gauge-lbl">Severity Level</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ENRICHER -->
+<!-- ═══ ENRICHER (iframe) ═══ -->
 <div class="screen" id="s-enricher">
   <div class="topbar">
-    <span class="topbar-title">⚡ Bulk API Enricher</span>
-    <span class="topbar-sub">Build a pipeline · Upload CSV · Run · Download</span>
-    <div class="topbar-right">
-      <span id="enr-swagger-status" style="font-size:11px;color:var(--muted)"></span>
+    <span class="tb-icon">⚡</span>
+    <span class="tb-title">Bulk API Enricher</span>
+    <span class="tb-sub">Hosted on Railway</span>
+    <div class="tb-right">
+      <span class="iframe-url">bw-enricher.up.railway.app</span>
+      <a class="btn sm outline" href="https://bw-enricher.up.railway.app/" target="_blank" rel="noopener">↗ Open full screen</a>
     </div>
   </div>
-  <div class="panel-body">
-
-    <!-- LEFT: config -->
-    <div class="enr-left">
-      <div class="enr-section">
-        <div class="enr-section-title">Environment</div>
-        <div class="enr-env-row">
-          <select id="enr-env">
-            <option value="prod">Production</option>
-            <option value="stage">Stage</option>
-            <option value="dev">Dev</option>
-          </select>
-          <button class="btn xs" id="btnLoadSwagger">Load Schema</button>
-        </div>
-        <div>
-          <label class="lbl">API Token</label>
-          <div class="token-row">
-            <input id="enr-token" type="password" placeholder="Bearer token…"/>
-          </div>
-        </div>
-      </div>
-
-      <div class="enr-section">
-        <div class="enr-section-title">Input CSV</div>
-        <div id="enr-file-area">
-          <div class="file-drop" id="enr-drop-zone">
-            <div class="file-drop-icon">📂</div>
-            <p><strong>Click to upload</strong> or drag & drop</p>
-            <p>.csv files only</p>
-          </div>
-          <input type="file" id="enr-file-input" accept=".csv" style="display:none"/>
-        </div>
-      </div>
-
-      <div class="enr-section" style="flex-shrink:0">
-        <div class="enr-section-title">Pipeline Steps</div>
-      </div>
-      <div class="enr-pipeline" id="enr-pipeline-list">
-        <div class="pipeline-empty">No steps yet.<br/>Build your pipeline using the editor →</div>
-      </div>
-      <div class="enr-pipeline-actions">
-        <button class="btn xs solid" id="btnEnrRun" disabled>▶ Run</button>
-        <button class="btn xs" id="btnEnrDownload" disabled>↓ Download CSV</button>
-        <button class="btn xs ghost-danger" id="btnEnrClearPipeline">Clear</button>
-      </div>
-    </div>
-
-    <!-- CENTER: step builder -->
-    <div class="enr-builder" id="enr-builder">
-      <div class="builder-card">
-        <div class="builder-card-head">📌 Step Builder — Add Enrichment Step</div>
-        <div class="builder-card-body">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div>
-              <label class="lbl">Category</label>
-              <select id="enr-cat" style="width:100%"><option value="">— Load schema first —</option></select>
-            </div>
-            <div>
-              <label class="lbl">Endpoint</label>
-              <select id="enr-ep" style="width:100%"><option value="">— Select category —</option></select>
-            </div>
-          </div>
-          <div id="enr-ep-url" style="font-size:10px;font-family:monospace;color:var(--subtle);padding:4px 0"></div>
-          <div id="enr-params-area"></div>
-          <div id="enr-outputs-area"></div>
-          <div style="display:flex;gap:7px;margin-top:4px">
-            <button class="btn solid" id="btnEnrAddStep">+ Add Step to Pipeline</button>
-            <button class="btn" id="btnEnrClearBuilder">Clear</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="builder-card" id="enr-preview-card" style="display:none">
-        <div class="builder-card-head">🔍 Test — First Row Preview</div>
-        <div class="builder-card-body" id="enr-preview-body" style="font-size:12px;font-family:monospace;color:var(--muted);white-space:pre-wrap"></div>
-      </div>
-    </div>
-
-    <!-- RIGHT: run stats + log -->
-    <div class="enr-run">
-      <div class="run-section">
-        <div class="run-section-title">Run Status</div>
-        <div class="stat-grid">
-          <div class="stat-box"><div class="stat-label">Processed</div><div class="stat-val blue" id="stat-processed">0</div></div>
-          <div class="stat-box"><div class="stat-label">Errors</div><div class="stat-val red" id="stat-errors">0</div></div>
-          <div class="stat-box"><div class="stat-label">Total Rows</div><div class="stat-val" id="stat-total">—</div></div>
-          <div class="stat-box"><div class="stat-label">Steps</div><div class="stat-val" id="stat-steps">0</div></div>
-        </div>
-        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="enr-progress"></div></div>
-        <div style="font-size:10px;color:var(--muted)" id="enr-eta">Ready</div>
-      </div>
-      <div class="run-section" style="flex-shrink:0">
-        <div class="run-section-title">Concurrency</div>
-        <input type="range" min="1" max="10" value="3" id="enr-concurrency" style="width:100%"/>
-        <div style="font-size:11px;color:var(--muted)">Workers: <strong id="enr-conc-val">3</strong></div>
-      </div>
-      <div class="log-area" id="enr-log">
-        <div class="log-line info">Ready. Load a schema, build a pipeline, upload a CSV, then Run.</div>
-      </div>
-    </div>
+  <div class="body">
+    <iframe
+      id="enricher-frame"
+      src="https://bw-enricher.up.railway.app/"
+      title="Bulk API Enricher"
+      allow="clipboard-write"
+      loading="lazy">
+    </iframe>
   </div>
 </div>
 
-<!-- POLICY -->
+<!-- ═══ POLICY ═══ -->
 <div class="screen" id="s-policy">
   <div class="topbar">
-    <span class="topbar-title">📋 Investment Policy Builder</span>
-    <span class="topbar-sub">Groups = OR · Rules = AND · JSON live</span>
+    <span class="tb-icon">📋</span>
+    <span class="tb-title">Investment Policy Builder</span>
+    <span class="tb-sub">Groups = OR · Rules within group = AND · JSON live</span>
   </div>
-  <div class="panel-body">
+  <div class="body">
     <div class="pol-left">
-      <div class="pol-toolbar">
-        <span style="font-size:11px;font-weight:700;color:var(--muted)">Preset</span>
-        <select id="pol-preset">
-          <option value="">— Load preset —</option>
-          <option value="large_cap_us">Large Cap US</option>
-          <option value="mid_cap_eu">Mid Cap EU</option>
-          <option value="exclude_non_liquid">Exclude Non-Liquid</option>
-          <option value="index_members">Index Members Only</option>
-          <option value="tase_domestic">TASE Domestic</option>
-        </select>
+      <div class="pol-tb">
+        <span style="font-size:11px;font-weight:700;color:var(--ink3)">Presets</span>
+        <select id="pol-preset"><option value="">— Load preset —</option><option value="large_cap_us">Large Cap US</option><option value="mid_cap_eu">Mid Cap EU</option><option value="exclude_illiquid">Exclude Non-Liquid</option><option value="index_members">Index Members Only</option><option value="tase_domestic">TASE Domestic</option></select>
         <div class="tsep"></div>
-        <button class="btn" id="btnPolImport">↑ Import</button>
-        <button class="btn solid" id="btnPolExport">↓ Export</button>
-        <button class="btn" id="btnPolClear">Clear</button>
+        <button class="btn sm" id="btnPolImport">↑ Import</button>
+        <button class="btn sm solid" id="btnPolExport">↓ Export</button>
+        <button class="btn sm" id="btnPolClear">Clear</button>
       </div>
       <div id="pol-groups" style="display:flex;flex-direction:column;gap:0"></div>
       <div><button class="btn solid" id="btnPolAddGroup">+ Add Policy Group (OR)</button></div>
     </div>
     <div class="pol-right">
-      <div class="pj-head"><span class="pj-title">JSON Output</span><button class="ghost" id="btnPolCopy">Copy</button></div>
-      <div class="pj-stats">
-        <span class="pj-stat">Groups: <strong id="pol-stat-g">0</strong></span>
-        <span class="pj-stat">Rules: <strong id="pol-stat-r">0</strong></span>
-        <span class="pj-stat" id="pol-stat-v"></span>
-      </div>
+      <div class="pjhead"><span class="pjtitle">// policy.json</span><button class="gbtn" id="btnPolCopyJson">Copy</button></div>
+      <div class="pjstats"><span class="pjstat">Groups: <strong id="pol-sg">0</strong></span><span class="pjstat">Rules: <strong id="pol-sr">0</strong></span><span class="pjstat" id="pol-sv"></span></div>
       <pre id="pol-json">[]</pre>
     </div>
   </div>
 </div>
-
 </div><!-- /main -->
 
-<!-- MODALS -->
-<div class="modal-ov" id="clientModal">
-  <div class="modal-box">
-    <div class="modal-head"><h3>Manage Client List</h3><button class="btn xs" id="btnCloseClients">✕</button></div>
-    <div class="modal-body">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Saved in your browser. Toggle ★ Strategic to flag for priority treatment.</p>
-      <div class="add-row"><input type="text" id="new-client-input" placeholder="New client name…"/><button class="btn solid xs" id="btnAddClient">Add</button></div>
-      <div id="add-client-msg" style="font-size:11px;color:var(--red);margin-top:4px;min-height:14px"></div>
-      <ul class="client-list" id="client-list-ul"></ul>
+<!-- CLIENT MODAL -->
+<div class="moverlay" id="clientModal">
+  <div class="mbox">
+    <div class="mhead"><h3>Manage Client List</h3><button class="btn sm" id="btnCloseClients">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:12px;color:var(--ink3)">Stored in your browser. Toggle <strong>★ Strategic</strong> to flag clients — strategic clients can elevate severity.</p>
+      <div class="addrow"><input type="text" id="new-client-input" placeholder="New client name…"/><button class="btn solid sm" id="btnAddClient">Add</button></div>
+      <div id="add-client-msg" style="font-size:11px;color:var(--red);min-height:14px"></div>
+      <ul class="clist" id="client-list-ul"></ul>
     </div>
-    <div class="modal-foot"><button class="btn xs" id="btnCloseClients2">Close</button></div>
+    <div class="mfoot"><button class="btn sm" id="btnCloseClients2">Close</button></div>
   </div>
 </div>
-<div class="modal-ov" id="pol-import-modal">
-  <div class="modal-box">
-    <div class="modal-head"><h3>Import JSON Policy</h3><button class="btn xs" id="btnCloseImport">✕</button></div>
-    <div class="modal-body">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Paste a previously exported policy JSON array.</p>
-      <textarea class="import-ta" id="pol-import-ta" placeholder='[{"configuration":[...],"group":1}]'></textarea>
-      <div id="pol-import-err" style="display:none" class="import-err"></div>
+
+<!-- POLICY IMPORT MODAL -->
+<div class="moverlay" id="pol-import-modal">
+  <div class="mbox">
+    <div class="mhead"><h3>Import JSON Policy</h3><button class="btn sm" id="btnCloseImport">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:12px;color:var(--ink3)">Paste a previously exported policy array.</p>
+      <textarea class="impta" id="pol-import-ta" placeholder='[{"configuration":[...],"group":1}]'></textarea>
+      <div id="pol-import-err" style="display:none;font-size:12px;color:var(--red);background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;padding:8px 11px"></div>
     </div>
-    <div class="modal-foot"><button class="btn xs" id="btnCancelImport">Cancel</button><button class="btn solid xs" id="btnDoImport">Import</button></div>
+    <div class="mfoot"><button class="btn sm" id="btnCancelImport">Cancel</button><button class="btn solid sm" id="btnDoImport">Import</button></div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// ROUTING
-// ══════════════════════════════════════════════════════════
-const SCREENS=['home','severity','enricher','policy'];
-const G=id=>document.getElementById(id);
+'use strict';
+const G = id => document.getElementById(id);
 
-function showScreen(id){
-  SCREENS.forEach(s=>{
-    G('s-'+s).classList.toggle('active',s===id);
-    document.querySelectorAll(`.sb-item[data-screen="${s}"]`).forEach(el=>el.classList.toggle('active',s===id));
-  });
-  if(id==='policy'&&!polInited) polInit();
-  if(id==='enricher'&&!enrInited) enrInit();
+/* ═══════════════════════════════════
+   WEBGL BACKGROUND — raw GLSL shader
+═══════════════════════════════════ */
+(function initWebGL() {
+  const canvas = G('main-gl');
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+
+  const vert = `
+    attribute vec2 a_pos;
+    void main(){ gl_Position = vec4(a_pos,0.,1.); }
+  `;
+  const frag = `
+    precision mediump float;
+    uniform vec2 u_res;
+    uniform float u_time;
+    void main(){
+      vec2 uv = gl_FragCoord.xy / u_res;
+      float t = u_time * .35;
+      vec3 col = vec3(0.);
+      // Orb 1 — blue
+      vec2 p1 = vec2(.15 + sin(t*.7)*.12, .8 + cos(t*.5)*.1);
+      float d1 = length(uv - p1);
+      col += vec3(.08,.18,.55) * exp(-d1*d1*7.);
+      // Orb 2 — purple
+      vec2 p2 = vec2(.85 + cos(t*.4)*.1, .25 + sin(t*.6)*.12);
+      float d2 = length(uv - p2);
+      col += vec3(.22,.06,.4) * exp(-d2*d2*6.);
+      // Orb 3 — teal
+      vec2 p3 = vec2(.5 + sin(t*.55)*.18, .55 + cos(t*.45)*.15);
+      float d3 = length(uv - p3);
+      col += vec3(.02,.22,.3) * exp(-d3*d3*9.);
+      // Orb 4 — amber accent
+      vec2 p4 = vec2(.78 + cos(t*.8)*.08, .78 + sin(t*.65)*.09);
+      float d4 = length(uv - p4);
+      col += vec3(.28,.16,.02) * exp(-d4*d4*12.);
+      // Base tint
+      col += vec3(.86,.88,.92) * .88;
+      gl_FragColor = vec4(clamp(col,0.,1.),1.);
+    }
+  `;
+  function compile(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+  gl.linkProgram(prog); gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'a_pos');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const uRes = gl.getUniformLocation(prog, 'u_res');
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+
+  function resize() {
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+
+  let t = 0;
+  (function draw() {
+    requestAnimationFrame(draw);
+    t += 0.016;
+    gl.uniform1f(uTime, t);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  })();
+})();
+
+/* ═══════════════════════════════════
+   THREE.JS SIDEBAR WARP TUNNEL
+═══════════════════════════════════ */
+(function initSidebar() {
+  const canvas = G('sb-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
+  camera.position.z = 1.5;
+
+  const rings = [];
+  for (let i = 0; i < 44; i++) {
+    const r = 0.28 + Math.random() * 0.55;
+    const geo = new THREE.RingGeometry(r, r + 0.025 + Math.random() * 0.015, 48);
+    const hue = 0.58 + Math.random() * 0.1;
+    const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL(hue, 0.85, 0.25 + Math.random() * 0.2), transparent: true, opacity: 0.05 + Math.random() * 0.1, side: THREE.DoubleSide });
+    const ring = new THREE.Mesh(geo, mat);
+    ring.position.z = -i * 0.48;
+    ring.rotation.x = Math.random() * Math.PI;
+    ring.rotation.z = Math.random() * Math.PI;
+    scene.add(ring);
+    rings.push(ring);
+  }
+
+  const starGeo = new THREE.BufferGeometry();
+  const sp = new Float32Array(320 * 3);
+  for (let i = 0; i < 320; i++) { sp[i*3]=(Math.random()-.5)*3; sp[i*3+1]=(Math.random()-.5)*7; sp[i*3+2]=-Math.random()*22; }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x3366dd, size: 0.018, transparent: true, opacity: 0.55 })));
+
+  function resize() {
+    const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+
+  let t = 0;
+  (function tick() {
+    requestAnimationFrame(tick); t += 0.004;
+    rings.forEach(r => { r.position.z += 0.011; r.rotation.z += 0.002; if (r.position.z > 2) r.position.z = -20; });
+    camera.rotation.z = Math.sin(t * 0.28) * 0.035;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ═══════════════════════════════════
+   ROUTING + GSAP TRANSITIONS
+═══════════════════════════════════ */
+const SCREENS = ['severity','enricher','policy'];
+let polInited = false;
+
+function showScreen(id) {
+  const prev = SCREENS.find(s => G('s-'+s).classList.contains('active'));
+  if (prev === id) return;
+  if (prev) {
+    gsap.to('#s-'+prev, { opacity:0, y:-8, duration:.15, ease:'power2.in', onComplete() {
+      G('s-'+prev).classList.remove('active');
+      G('s-'+id).classList.add('active');
+      enterScreen(id);
+    }});
+  } else {
+    G('s-'+id).classList.add('active');
+    enterScreen(id);
+  }
+  document.querySelectorAll('.sb-item[data-screen]').forEach(el => el.classList.toggle('active', el.dataset.screen===id));
+  if (id==='policy' && !polInited) polInit();
 }
 
-document.addEventListener('click',e=>{
-  const el=e.target.closest('[data-screen]');
-  if(el) showScreen(el.dataset.screen);
+function enterScreen(id) {
+  const el = G('s-'+id);
+  gsap.fromTo(el, {opacity:0,y:10}, {opacity:1,y:0,duration:.24,ease:'power2.out'});
+  // Anime.js stagger on cards
+  const cards = el.querySelectorAll('.gcard,.card,.pgcard,.gauge-wrap,.pol-tb');
+  if (cards.length) {
+    anime({ targets: cards, opacity:[0,1], translateY:[18,0], duration:350, delay:anime.stagger(55,{start:40}), easing:'easeOutCubic' });
+  }
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-screen]');
+  if (el?.dataset.screen) showScreen(el.dataset.screen);
 });
 
-// ══════════════════════════════════════════════════════════
-// SEVERITY CALCULATOR
-// ══════════════════════════════════════════════════════════
-const CLIENT_KEY='bw_clients_v2';
-const DEFAULT_CLIENTS=[
-  {name:'Alfa',strategic:false},{name:'Altshuler',strategic:false},{name:'B3',strategic:true},
-  {name:'Bank Hapoalim (Advisors)',strategic:false},{name:'Bank Hapoalim (Retail)',strategic:false},
-  {name:'Bank Leumi (Advisors)',strategic:false},{name:'Bank Leumi (Retail)',strategic:false},
-  {name:'Bank Mizrahi (Advisors)',strategic:false},{name:'Bank Mizrahi (Retail)',strategic:false},
-  {name:'Bank OneZero',strategic:false},{name:'Blackfort',strategic:false},{name:'Broadcast',strategic:false},
-  {name:'DevExperts',strategic:false},{name:'Discount (Advisors)',strategic:false},{name:'Discount (Retail)',strategic:false},
-  {name:'DZH International',strategic:false},{name:'Epifi',strategic:false},{name:'FIBI (Advisors)',strategic:false},
-  {name:'FIBI (Retail)',strategic:false},{name:'Fijaya',strategic:false},{name:'FMR',strategic:false},
-  {name:'GMO',strategic:false},{name:'Goliaths',strategic:false},{name:'GTO (GlobalTradeOne)',strategic:false},
-  {name:'IBI',strategic:false},{name:'JPX',strategic:true},{name:'Marketech',strategic:false},
-  {name:'Meitav Investment',strategic:false},{name:'Phoenix Trade',strategic:false},{name:'Psagot Trade',strategic:false},
-  {name:'Rakuten',strategic:true},{name:'SBITO',strategic:false},{name:'Six ID',strategic:false},
-  {name:'StateOne',strategic:false},{name:'Suno',strategic:false},{name:'TASE',strategic:true},
-  {name:'Terminal (Guideline)',strategic:false},{name:'TSFC',strategic:false},{name:'TTL',strategic:false},
-  {name:'TuesdayCapital',strategic:false},{name:'VenturyFX',strategic:false},{name:'ViewTrade',strategic:false},
-  {name:'Yahav Bank (Advisors)',strategic:false}
+/* ═══════════════════════════════════
+   GAUGE
+═══════════════════════════════════ */
+let gaugeChart = null;
+function initGauge() {
+  const ctx = G('sev-gauge')?.getContext('2d');
+  if (!ctx) return;
+  gaugeChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ datasets:[{ data:[0,4], backgroundColor:['#3b82f6','#e0e6f5'], borderWidth:0, circumference:180, rotation:270 }]},
+    options:{ responsive:false, cutout:'72%', plugins:{ legend:{display:false}, tooltip:{enabled:false}}, animation:{ duration:700, easing:'easeOutCubic'}}
+  });
+}
+function updateGauge(severity) {
+  if (!gaugeChart) return;
+  const sc={Critical:4,High:3,Normal:2,P0:4,P1:3,P2:2,P3:1};
+  const cl={Critical:'#ef4444',High:'#f97316',Normal:'#eab308',P0:'#ef4444',P1:'#f97316',P2:'#eab308',P3:'#10b981'};
+  const s=sc[severity]??2, c=cl[severity]??'#3b82f6';
+  gaugeChart.data.datasets[0].data=[s,4-s];
+  gaugeChart.data.datasets[0].backgroundColor=[c,'#e0e6f5'];
+  gaugeChart.update();
+  const el=G('gauge-score');
+  el.textContent=severity;
+  el.style.color=c;
+  el.style.fontSize=severity.length>6?'11px':severity.length>4?'14px':'20px';
+  anime({targets:el,scale:[0.5,1],opacity:[0,1],duration:500,easing:'easeOutElastic(1,.6)'});
+}
+
+/* ═══════════════════════════════════
+   SEVERITY CALCULATOR
+   Exact logic from original
+═══════════════════════════════════ */
+const CLIENT_KEY = 'bw_clients_v3';
+const RAW_CLIENTS = [
+  'Alfa','Altshuler','B3','Bank Leumi (Advisors)','Bank Leumi (Retail)','Broadcast',
+  'Goliaths','Marketech','Psagot Trade','StateOne','Blackfort','Yahav Bank (Advisors)',
+  'DevExperts','Bank Hapoalim (Advisors)','Bank Hapoalim (Retail)','DZH International',
+  'Epifi','Bank OneZero','FIBI (Advisors)','Fijaya','FMR','GMO','FIBI (Retail)',
+  'GTO (GlobalTradeOne)','JPX','Phoenix Trade','Six ID','TASE','Bank Mizrahi (Advisors)',
+  'Bank Mizrahi (Retail)','Rakuten','Discount (Advisors)','Discount (Retail)','IBI',
+  'Meitav Investment','SBITO','Terminal (Guideline)','TSFC','TTL','TuesdayCapital',
+  'VenturyFX','ViewTrade','Suno'
 ];
-let sevClients=[];
-function sevLoad(){try{const r=localStorage.getItem(CLIENT_KEY);sevClients=r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT_CLIENTS));}catch(e){sevClients=JSON.parse(JSON.stringify(DEFAULT_CLIENTS));}if(!localStorage.getItem(CLIENT_KEY))localStorage.setItem(CLIENT_KEY,JSON.stringify(sevClients));}
-function sevSave(){localStorage.setItem(CLIENT_KEY,JSON.stringify(sevClients));}
-function isStrategic(name){return sevClients.some(c=>c.name.toLowerCase()===name.trim().toLowerCase()&&c.strategic);}
-function setChips(gid,val){G(gid)?.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.val===val));}
-function getChip(gid){return G(gid)?.querySelector('.chip.active')?.dataset.val;}
-let sevMode='escalation';
-function sevSwitchMode(mode){
-  sevMode=mode;const isJ=mode==='jira';
-  G('esc-panel').style.display=isJ?'none':'';G('jira-panel').style.display=isJ?'':'none';
-  G('modeEsc').classList.toggle('active',!isJ);G('modeJira').classList.toggle('active',isJ);
-  G('sev-badge').style.display=isJ?'none':'inline-flex';G('sev-badge2').style.display=isJ?'inline-flex':'none';
-  G('r-sla-row').style.display=isJ?'none':'';
-  sevRenderStrat(isStrategic(G('sev-customer').value));
-}
-function sevRenderStrat(on){G('sev-strat-hint').style.display=on?'block':'none';G('sev-strat-badge').style.display=on?'inline-flex':'none';}
-function sevInitTA(){
-  const inp=G('sev-customer'),dd=G('sev-dd');let selIdx=-1,items=[],timer=null;
-  const close=()=>{dd.style.display='none';selIdx=-1;items=[];};
-  inp.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>{sevRenderStrat(isStrategic(inp.value));const q=inp.value.trim().toLowerCase();if(!q){close();return;}items=sevClients.filter(c=>c.name.toLowerCase().includes(q)).slice(0,8);if(!items.length){close();return;}dd.innerHTML=items.map((c,i)=>`<div class="ta-item" data-i="${i}">${c.name}${c.strategic?'<span class="strat-dot"></span>':''}</div>`).join('');dd.querySelectorAll('.ta-item').forEach(d=>d.addEventListener('click',()=>{inp.value=items[+d.dataset.i].name;sevRenderStrat(isStrategic(inp.value));close();}));dd.style.display='block';},80);});
-  inp.addEventListener('keydown',e=>{if(!items.length)return;if(e.key==='ArrowDown'){e.preventDefault();selIdx=Math.min(selIdx+1,items.length-1);}else if(e.key==='ArrowUp'){e.preventDefault();selIdx=Math.max(selIdx-1,0);}else if(e.key==='Enter'&&selIdx>=0){e.preventDefault();inp.value=items[selIdx].name;sevRenderStrat(isStrategic(inp.value));close();return;}else if(e.key==='Escape'){close();return;}dd.querySelectorAll('.ta-item').forEach((d,i)=>d.classList.toggle('hi',i===selIdx));});
-  document.addEventListener('click',e=>{if(!inp.contains(e.target)&&!dd.contains(e.target))close();});
-}
-function sevCalculate(){
-  const customer=G('sev-customer').value.trim()||'(not specified)';
-  const desc=G('sev-desc').value.trim()||'(not provided)';
-  const strat=isStrategic(customer);
-  const ts=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  G('r-customer').textContent=customer;G('r-desc').textContent=desc.length>120?desc.slice(0,120)+'…':desc;G('r-ts').textContent=ts;sevRenderStrat(strat);
-  if(sevMode==='escalation'){
-    const who=getChip('whoChips'),q1=getChip('q1Chips'),q2=getChip('q2Chips'),q3=getChip('q3Chips');let s=0,r=[];
-    if(who==='all'){s+=4;r.push('all customers');}else if(who==='group'){s+=2;r.push('multiple customers');}else{s+=1;r.push('single customer');}
-    if(q1==='complete'){s+=4;r.push('complete outage');}else if(q1==='partial'){s+=2;r.push('partial degradation');}else{s+=1;r.push('minor/cosmetic');}
-    if(q2==='incorrect'){s+=3;r.push('incorrect data');}else if(q2==='missing'){s+=2;r.push('missing data');}
-    if(q3==='multi'){s+=4;r.push('multi-universe');}else if(q3==='market'){s+=3;r.push('market/sector');}else if(q3==='group'){s+=2;r.push('group of companies');}else{s+=1;r.push('single company');}
-    if(strat){s+=3;r.push('strategic client');}
-    let sev,cls,sla;
-    if(s>=12){sev='S1 – Critical';cls='rb-s1';sla='15 min response, on-call immediately';}else if(s>=8){sev='S2 – High';cls='rb-s2';sla='1 hour response, engineer alerted';}else if(s>=5){sev='S3 – Medium';cls='rb-s3';sla='4 hour response, next business day';}else{sev='Normal';cls='rb-sN';sla='Standard SLA, no escalation needed';}
-    G('sev-badge').className='result-badge '+cls;G('sev-badge').textContent=sev;G('r-sla').textContent=sla;G('r-reason').textContent='Score '+s+': '+r.join(', ');
-  }else{
-    const urg=getChip('urgencyChips'),area=getChip('affectChips'),wa=getChip('workaroundChips');let s=0,r=[];
-    if(urg==='high'){s+=3;r.push('high urgency');}else if(urg==='unknown'){s+=1;}
-    if(area==='core'){s+=3;r.push('core logic');}else if(area==='api'){s+=2;r.push('API/data');}else{s+=1;r.push('visual only');}
-    if(wa==='no'){s+=2;r.push('no workaround');}if(strat){s+=3;r.push('strategic client');}
-    let pri,cls;if(s>=7){pri='P0';cls='rb-p0';}else if(s>=5){pri='P1';cls='rb-p1';}else if(s>=3){pri='P2';cls='rb-p2';}else{pri='P3';cls='rb-p3';}
-    G('sev-badge2').className='result-badge '+cls;G('sev-badge2').textContent=pri;G('r-reason').textContent='Score '+s+': '+r.join(', ');
-  }
-}
-async function sevCopy(){const mode=sevMode,sev=(mode==='jira'?G('sev-badge2'):G('sev-badge')).textContent;const text=['=== BRIDGEWISE SEVERITY ASSESSMENT ===','Timestamp: '+G('r-ts').textContent,'Mode: '+(mode==='jira'?'Jira':'Escalation'),'Customer: '+G('r-customer').textContent,'Description: '+G('r-desc').textContent,(mode==='jira'?'Priority':'Severity')+': '+sev,mode==='escalation'?'SLA: '+G('r-sla').textContent:'','Reasoning: '+G('r-reason').textContent].filter(Boolean).join('\n');try{await navigator.clipboard.writeText(text);G('btnCopySev').textContent='✅ Copied';setTimeout(()=>G('btnCopySev').textContent='📋 Copy',2000);}catch(e){alert('Copy failed');}}
-function sevReset(){if(!confirm('Reset all fields?'))return;G('sev-customer').value='';G('sev-desc').value='';G('sev-dd').style.display='none';setChips('whoChips','single');setChips('q1Chips','partial');setChips('q2Chips','missing');setChips('q3Chips','group');setChips('urgencyChips','low');setChips('affectChips','api');setChips('workaroundChips','yes');sevRenderStrat(false);G('sev-badge').className='result-badge rb-s3';G('sev-badge').textContent='Normal';G('sev-badge2').className='result-badge rb-p2';G('sev-badge2').textContent='P2';['r-customer','r-desc','r-ts','r-sla','r-reason'].forEach(id=>G(id).textContent='—');}
-function openClientModal(){G('clientModal').classList.add('open');renderClients();}
-function closeClientModal(){G('clientModal').classList.remove('open');}
-function renderClients(){const ul=G('client-list-ul');ul.innerHTML=[...sevClients].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<li class="client-item" data-name="${c.name.replace(/"/g,'&quot;')}"><span class="client-name">${c.name}</span><button class="strat-toggle ${c.strategic?'on':'off'}" data-action="toggle">${c.strategic?'★ Strategic':'☆ Mark Strategic'}</button><button class="btn xs ghost-danger" data-action="del">✕</button></li>`).join('');ul.querySelectorAll('[data-action="toggle"]').forEach(btn=>btn.addEventListener('click',()=>{const c=sevClients.find(x=>x.name===btn.closest('li').dataset.name);if(c){c.strategic=!c.strategic;sevSave();renderClients();}}));ul.querySelectorAll('[data-action="del"]').forEach(btn=>btn.addEventListener('click',()=>{const name=btn.closest('li').dataset.name;if(confirm('Remove "'+name+'"?')){sevClients=sevClients.filter(x=>x.name!==name);sevSave();renderClients();}}));}
-function addClient(){const inp=G('new-client-input'),name=inp.value.trim(),msg=G('add-client-msg');if(!name){msg.textContent='Enter a name.';return;}if(sevClients.find(c=>c.name.toLowerCase()===name.toLowerCase())){msg.textContent='Already exists.';return;}sevClients.push({name,strategic:false});sevSave();renderClients();inp.value='';msg.textContent='';}
-function initChipGroup(id){G(id)?.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>setChips(id,c.dataset.val));c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setChips(id,c.dataset.val);}});});}
+const STRATEGIC_DEFAULT = new Set(['Rakuten','JPX','TASE','B3']);
+const canonicalize = n => n ? n.replace(/\s*\([^)]*\)\s*/g,'').trim() : '';
 
-// ══════════════════════════════════════════════════════════
-// BULK ENRICHER
-// ══════════════════════════════════════════════════════════
-let enrInited=false;
-let enrSwagger=null; // parsed spec: {category: {url: {label,path:[],query:[],outputs:[]}}}
-let enrPipeline=[]; // array of step configs
-let enrCSVData=null; // array of row objects
-let enrCSVHeaders=[];
-let enrResultRows=[];
-let enrRunning=false;
-
-const ENR_BASES={prod:'https://rest.bridgewise.com',stage:'https://rest.stage-bridgewise.com',dev:'https://rest.dev-bridgewise.com'};
-const ENR_SWAGGER={prod:'https://rest.bridgewise.com/docs/openapi.json',stage:'https://rest.stage-bridgewise.com/docs/openapi.json',dev:'https://rest.dev-bridgewise.com/docs/openapi.json'};
-
-function enrLog(msg,type='info'){
-  const log=G('enr-log');
-  const line=document.createElement('div');
-  line.className='log-line '+(type||'info');
-  line.textContent='['+new Date().toLocaleTimeString()+']: '+msg;
-  log.appendChild(line);
-  log.scrollTop=log.scrollHeight;
+let sevClients = [];
+function sevLoad() {
+  try { const r=localStorage.getItem(CLIENT_KEY); sevClients=r?JSON.parse(r):RAW_CLIENTS.map(n=>({name:n,strategic:STRATEGIC_DEFAULT.has(canonicalize(n))})); }
+  catch(e){ sevClients=RAW_CLIENTS.map(n=>({name:n,strategic:STRATEGIC_DEFAULT.has(canonicalize(n))})); }
+  if (!localStorage.getItem(CLIENT_KEY)) localStorage.setItem(CLIENT_KEY,JSON.stringify(sevClients));
 }
+function sevSave(){ localStorage.setItem(CLIENT_KEY,JSON.stringify(sevClients)); }
+const deriveStrategic = () => { const cn=canonicalize(G('customer')?.value||''); return sevClients.some(c=>canonicalize(c.name)===cn&&c.strategic); };
+const renderStrategicUI = isS => { const h=G('strategicHint'),b=G('strategicBadge'); if(h)h.style.display=isS?'':'none'; if(b)b.style.display=isS?'':'none'; };
+const setChips = (id,val) => { G(id)?.querySelectorAll('.chip').forEach(c=>{ const on=c.dataset.val===val; c.classList.toggle('active',on); c.setAttribute('aria-checked',on.toString()); c.setAttribute('tabindex',on?'0':'-1'); }); };
+const getChip = id => G(id)?.querySelector('.chip.active')?.dataset.val;
 
-function enrParseSwagger(data){
-  const specs={};
-  const paths=data.paths||{};
-  for(const [path,pathItem] of Object.entries(paths)){
-    if(!pathItem.get) continue;
-    const details=Array.isArray(pathItem.get)?pathItem.get[0]:pathItem.get;
-    const tags=details.tags||['Other'];
-    const cat=tags[0];
-    if(!specs[cat]) specs[cat]={};
-    const allParams=[...(pathItem.parameters||[]),...(details.parameters||[])];
-    const pathParams=[],queryParams=[];
-    for(const p of allParams){
-      const name=p.name,inVal=p.in,schema=p.schema||{};
-      const meta={name,required:p.required||false,enum:schema.enum||p.enum||null,type:schema.type||'string',example:p.example||schema.example||''};
-      if(inVal==='path') pathParams.push(meta);
-      else if(inVal==='query') queryParams.push(meta);
+const switchMode = mode => {
+  const escP=document.querySelector('.mode-escalation'),jiraP=document.querySelector('.mode-jira');
+  const [bE,bJ]=document.querySelectorAll('.mode .chip');
+  const isJ=mode==='jira';
+  escP.style.display=isJ?'none':''; jiraP.style.display=isJ?'':'none';
+  bE.classList.toggle('active',!isJ); bJ.classList.toggle('active',isJ);
+  bE.setAttribute('aria-selected',(!isJ).toString()); bJ.setAttribute('aria-selected',isJ.toString());
+  bE.setAttribute('tabindex',isJ?'-1':'0'); bJ.setAttribute('tabindex',isJ?'0':'-1');
+  G('slotSLA').style.display=isJ?'none':'block';
+  G('badge').style.display=isJ?'none':'inline-flex';
+  G('badge2').style.display=isJ?'inline-flex':'none';
+  renderStrategicUI(deriveStrategic()); G('slotReason').textContent='—';
+};
+
+const deriveBusinessImpact = () => {
+  const q1=getChip('q1ImpairmentChips'),q2=getChip('q2DataChips'),q3=getChip('q3ScopeChips');
+  if(q1==='complete') return {level:'Major',why:['Complete service impairment detected']};
+  if(q2==='incorrect'&&(q3==='multi'||q3==='market')) return {level:'Major',why:['Incorrect data with broad market coverage poses significant risk']};
+  if(q1==='partial') return {level:'Partial',why:['Partial service degradation affecting operations']};
+  if(q2==='incorrect'&&q3==='group') return {level:'Partial',why:['Incorrect data affecting group of companies']};
+  if(q2==='missing'&&(q3==='multi'||q3==='market'||q3==='group')) return {level:'Partial',why:['Missing data with material scope impact']};
+  return {level:'Minor',why:['Minor impairment with limited scope or no data integrity issues']};
+};
+
+const decideEscalation = () => {
+  const who=getChip('whoChips'),isS=deriveStrategic(),bi=deriveBusinessImpact();
+  let severity='Normal';
+  if(bi.level==='Major') severity=(who==='all'||who==='group'||isS)?'Critical':'High';
+  else if(bi.level==='Partial') severity=isS?'Critical':'High';
+  const slaMap={Critical:'FRT 30min • Resolution 12h',High:'FRT 60min • Resolution 24h',Normal:'FRT 24 business hours'};
+  const exp=['Service impairment: '+getChip('q1ImpairmentChips'),'Data quality: '+getChip('q2DataChips'),'Impact scope: '+getChip('q3ScopeChips'),'Affected users: '+who,isS?'Strategic client identified':null,'Business impact assessed as '+bi.level].filter(Boolean).join(' • ');
+  return {severity,explanation:exp,sla:slaMap[severity]};
+};
+
+const decideJira = () => {
+  const isS=deriveStrategic(),urg=getChip('urgencyChips'),aff=getChip('affectChips'),wa=getChip('workaroundChips');
+  const f={strategic:isS,highUrgency:urg==='high',apiImpact:aff==='api',noWorkaround:wa==='no'};
+  const fc=Object.values(f).filter(Boolean).length;
+  let priority='P3',reason='';
+  if(f.strategic&&f.highUrgency&&f.apiImpact&&f.noWorkaround){priority='P0';reason='Critical: Strategic client + High urgency + API impact + No workaround';}
+  else if(fc>=2||f.apiImpact){priority='P1';reason=fc>=2?'High impact: '+fc+' critical factors present':'API/Data layer impact requires immediate attention';}
+  else if(aff==='ui'||aff==='translation'||f.strategic){priority='P2';reason=f.strategic?'Strategic client requires elevated priority':'UI/Translation issue with manageable impact';}
+  else{priority='P3';reason='Low impact: Appearance issue or workaround available';}
+  return {priority,reason};
+};
+
+const calculate = async () => {
+  const btn=G('btnCalc'),orig=btn.textContent;
+  btn.textContent='Calculating...'; btn.disabled=true;
+  await new Promise(r=>setTimeout(r,300));
+  try {
+    G('slotCustomer').textContent=canonicalize(G('customer')?.value)||'—';
+    G('slotDesc').textContent=G('desc')?.value||'—';
+    G('slotTimestamp').textContent=new Date().toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZoneName:'short'});
+    const mode=document.querySelector('.mode .chip.active')?.dataset.mode;
+    if(mode==='jira'){
+      const {priority,reason}=decideJira();
+      const cls={P0:'sb-p0',P1:'sb-p1',P2:'sb-p2',P3:'sb-p3'};
+      G('badge2').className='sev-badge pop '+(cls[priority]||'sb-p2'); G('badge2').textContent=priority;
+      G('slotReason').textContent=reason; G('slotSlaText').textContent='—';
+      updateGauge(priority);
+    } else {
+      const {severity,explanation,sla}=decideEscalation();
+      const cls={Critical:'sb-crit',High:'sb-high',Normal:'sb-norm'};
+      G('badge').className='sev-badge pop '+(cls[severity]||'sb-norm'); G('badge').textContent=severity;
+      G('slotReason').textContent=explanation; G('slotSlaText').textContent=sla;
+      updateGauge(severity);
     }
-    // extract output fields
-    let outputs=[];
-    try{
-      const s200=details.responses?.['200']?.content?.['application/json']?.schema||{};
-      const extract=(sc,depth=0)=>{if(depth>8)return;if(sc.$ref){const k=sc.$ref.split('/').pop();const comp=(data.components?.schemas||{})[k]||{};extract(comp,depth+1);}else if(sc.type==='array'&&sc.items){extract(sc.items,depth+1);}else if(sc.properties){outputs.push(...Object.keys(sc.properties));}if(sc.allOf){sc.allOf.forEach(s=>extract(s,depth+1));}};
-      extract(s200);
-    }catch(e){}
-    const key=path;
-    specs[cat][key]={label:details.summary||path,path:pathParams,query:queryParams,outputs:[...new Set(outputs)]};
-  }
-  return specs;
-}
+    renderStrategicUI(deriveStrategic());
+    gsap.fromTo('#sev-result-card',{scale:.97,opacity:.75},{scale:1,opacity:1,duration:.35,ease:'back.out(2)'});
+    // Anime.js ripple on result slots
+    anime({targets:'#sev-result-card .rslot',backgroundColor:['rgba(37,99,235,.06)','rgba(248,250,255,.7)'],duration:600,delay:anime.stagger(60),easing:'easeOutQuart'});
+  } finally { btn.textContent=orig; btn.disabled=false; }
+};
 
-async function enrLoadSwagger(){
-  const env=G('enr-env').value;
-  const url=ENR_SWAGGER[env];
-  G('enr-swagger-status').textContent='Loading schema…';
-  enrLog('Fetching Swagger from '+url);
-  try{
-    const r=await fetch(url,{headers:{'Accept':'application/json'}});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const data=await r.json();
-    enrSwagger=enrParseSwagger(data);
-    const cats=Object.keys(enrSwagger);
-    G('enr-cat').innerHTML=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
-    enrLog('Schema loaded — '+cats.length+' categories, '+Object.values(enrSwagger).reduce((s,v)=>s+Object.keys(v).length,0)+' endpoints','ok');
-    G('enr-swagger-status').textContent='✓ Schema loaded ('+env+')';
-    enrOnCatChange();
-  }catch(err){
-    enrLog('Schema load failed: '+err.message+'. CORS may block browser requests — try running on same origin or use a CORS proxy.','err');
-    G('enr-swagger-status').textContent='⚠ Schema load failed';
-    // fallback minimal spec
-    enrSwagger={'Search & Metadata':{'/identifier-search':{label:'Identifier Search',path:[],query:[{name:'identifier',required:true,enum:null,type:'string',example:''},{name:'identifier_type',required:false,enum:['isin','ticker_exchange','tase','custom'],type:'string',example:'isin'}],outputs:['company_id','security_id','trading_item_id','ticker_symbol','exchange_name','asset_type']}},'/companies/{company_id}':{label:'Get Company Details',path:[{name:'company_id',required:true,enum:null,type:'string',example:''}],query:[{name:'language',required:false,enum:['en-US','he-IL','de-DE'],type:'string',example:'en-US'}],outputs:['company_name','ticker_symbol','exchange_name']}},'Fundamental Analysis':{'/companies/{company_id}/fundamental-analysis':{label:'Get Fundamental Analysis',path:[{name:'company_id',required:true,enum:null,type:'string',example:''}],query:[{name:'language',required:false,enum:null,type:'string',example:'en-US'},{name:'year',required:false,enum:null,type:'integer',example:'2024'}],outputs:['analysis_score','year','quarter']}}};
-    G('enr-cat').innerHTML=Object.keys(enrSwagger).map(c=>`<option value="${c}">${c}</option>`).join('');
-    enrLog('Using built-in fallback schema (identifier-search + company details + fundamental analysis)','info');
-    G('enr-swagger-status').textContent='⚠ Using fallback schema';
-    enrOnCatChange();
-  }
-}
+const captureScreenshot = async () => {
+  const btn=G('btnSnap'),orig=btn.textContent;
+  btn.textContent='📸 Capturing...'; btn.disabled=true;
+  try {
+    // Capture the entire severity screen content area (both columns)
+    const target=G('s-severity').querySelector('.body');
+    const canvas=await html2canvas(target,{
+      backgroundColor:'#f0f3f9',
+      scale:1.5,
+      useCORS:true,
+      logging:false,
+      windowWidth:target.scrollWidth,
+      windowHeight:target.scrollHeight,
+    });
+    const mode=document.querySelector('.mode .chip.active')?.dataset.mode||'escalation';
+    const customer=canonicalize(G('customer')?.value)||'unknown';
+    const ts=new Date().toISOString().slice(0,19).replace(/[:.]/g,'-');
+    const sev=mode==='jira'?G('badge2')?.textContent:G('badge')?.textContent;
+    canvas.toBlob(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url;
+      a.download=`bw-severity-${customer}-${sev}-${ts}.png`.toLowerCase();
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      btn.textContent='✅ Downloaded!';
+      setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2000);
+    },'image/png',1.0);
+  } catch(e){ btn.textContent='❌ Failed'; setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500); }
+};
 
-function enrOnCatChange(){
-  const cat=G('enr-cat').value;
-  if(!enrSwagger||!enrSwagger[cat]){G('enr-ep').innerHTML='<option>— Select category —</option>';return;}
-  const eps=enrSwagger[cat];
-  G('enr-ep').innerHTML=Object.entries(eps).map(([url,d])=>`<option value="${url}">${d.label}</option>`).join('');
-  enrOnEpChange();
-}
+const resetAll = () => {
+  if(!confirm('Reset all fields?')) return;
+  G('customer').value=''; G('desc').value=''; G('customerList').style.display='none';
+  setChips('whoChips','single'); setChips('q1ImpairmentChips','partial'); setChips('q2DataChips','missing'); setChips('q3ScopeChips','group');
+  setChips('urgencyChips','low'); setChips('affectChips','api'); setChips('workaroundChips','yes');
+  renderStrategicUI(false);
+  G('badge').className='sev-badge sb-norm'; G('badge').textContent='Normal';
+  G('badge2').className='sev-badge sb-p2'; G('badge2').textContent='P2';
+  G('slotCustomer').textContent='—'; G('slotDesc').textContent='—'; G('slotTimestamp').textContent='—'; G('slotSlaText').textContent='—'; G('slotReason').textContent='—';
+  G('customer')?.focus();
+};
 
-function enrOnEpChange(){
-  const cat=G('enr-cat').value,url=G('enr-ep').value;
-  if(!enrSwagger||!enrSwagger[cat]||!enrSwagger[cat][url]) return;
-  const ep=enrSwagger[cat][url];
-  G('enr-ep-url').textContent=url;
-  enrRenderParams(ep);
-  enrRenderOutputs(ep);
-}
+const initTypeahead = () => {
+  const inp = G('customer');
+  const list = G('customerList');
+  if (!inp || !list) return;
 
-function enrColOptions(includeStatic=true){
-  const opts=includeStatic?['<option value="__static__">— Static value —</option>']:'';
-  const cols=enrCSVHeaders.map(h=>`<option value="col:${h}">${h}</option>`).join('');
-  return (Array.isArray(opts)?opts.join(''):opts)+cols;
-}
+  let selectedIdx = -1;
+  let matchedNames = [];
 
-function enrRenderParams(ep){
-  const area=G('enr-params-area');area.innerHTML='';
-  const allParams=[...ep.path.map(p=>({...p,in:'path'})),...ep.query];
-  if(!allParams.length){area.innerHTML='<div style="font-size:12px;color:var(--muted)">No parameters for this endpoint.</div>';return;}
-  const section=document.createElement('div');
-  section.innerHTML='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Parameters</div>';
-  allParams.forEach(p=>{
-    const row=document.createElement('div');row.className='param-mapping-row';row.style.marginBottom='8px';
-    const isEnum=p.enum&&p.enum.length;
-    let srcHtml='';
-    if(isEnum){
-      srcHtml=`<select style="width:100%" data-param="${p.name}" data-src="enum"><option value="__static__">— Static —</option>${p.enum.map(v=>`<option value="enum:${v}">${v}</option>`).join('')}${enrCSVHeaders.map(h=>`<option value="col:${h}">← Col: ${h}</option>`).join('')}</select>`;
-    }else{
-      srcHtml=`<select style="flex:1" data-param="${p.name}" data-src="col">${enrColOptions()}</select><input type="text" data-param="${p.name}" data-src="static" placeholder="static value" style="flex:1;margin-left:6px;display:none"/>`;
-    }
-    row.innerHTML=`<div class="param-label-col"><label class="lbl">${p.in==='path'?'PATH':'QUERY'}: <code style="background:var(--bg);padding:1px 4px;border-radius:4px">{${p.name}}</code>${p.required?'<span style="color:var(--red)">*</span>':''}</label></div><div class="mapping-arrow">→</div><div style="flex:1;display:flex;gap:6px;align-items:center">${srcHtml}</div>`;
-    // show/hide static input on col select
-    const colSel=row.querySelector('[data-src="col"]');
-    const staticInp=row.querySelector('[data-src="static"]');
-    if(colSel&&staticInp){colSel.addEventListener('change',()=>{staticInp.style.display=colSel.value==='__static__'?'block':'none';});}
-    section.appendChild(row);
-  });
-  area.appendChild(section);
-}
-
-function enrRenderOutputs(ep){
-  const area=G('enr-outputs-area');area.innerHTML='';
-  const section=document.createElement('div');
-  section.innerHTML='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:8px 0">Output Field Mappings <span style="font-weight:400;color:var(--subtle)">(API field → new CSV column)</span></div>';
-  const list=document.createElement('div');list.id='enr-output-list';list.style.display='flex';list.style.flexDirection='column';list.style.gap='6px';
-  // default: first output field
-  const addOutputRow=(apiField='',csvCol='')=>{
-    const row=document.createElement('div');row.className='output-mapping-row';
-    const fieldOpts=ep.outputs.length?ep.outputs.map(f=>`<option value="${f}" ${f===apiField?'selected':''}>${f}</option>`).join(''):'<option value="">—</option>';
-    row.innerHTML=`<select style="flex:1.2">${fieldOpts||`<option value="${apiField}">${apiField||'field'}</option>`}</select><span class="output-sep">→</span><input type="text" placeholder="Column name" value="${csvCol||apiField}" style="flex:1"/><button class="btn xs ghost-danger" style="flex-shrink:0">✕</button>`;
-    row.querySelector('select').addEventListener('change',e=>{const inp=row.querySelector('input');if(!inp.value||inp.value===row._prev)inp.value=e.target.value;row._prev=e.target.value;});
-    row.querySelector('.ghost-danger').addEventListener('click',()=>row.remove());
-    list.appendChild(row);
+  // Position the fixed dropdown under the input
+  const reposition = () => {
+    const r = inp.getBoundingClientRect();
+    list.style.top   = (r.bottom + window.scrollY + 4) + 'px';
+    list.style.left  = r.left + 'px';
+    list.style.width = r.width + 'px';
   };
-  if(ep.outputs.length) addOutputRow(ep.outputs[0],'');
-  section.appendChild(list);
-  const addBtn=document.createElement('button');addBtn.className='btn xs';addBtn.textContent='+ Add Output Field';addBtn.style.marginTop='6px';addBtn.addEventListener('click',()=>addOutputRow('',''));
-  section.appendChild(addBtn);
-  area.appendChild(section);
-}
 
-function enrCollectStep(){
-  const cat=G('enr-cat').value,url=G('enr-ep').value;
-  if(!enrSwagger||!enrSwagger[cat]||!enrSwagger[cat][url]){alert('Select an endpoint first.');return null;}
-  const ep=enrSwagger[cat][url];
-  const paramMap={};
-  G('enr-params-area').querySelectorAll('[data-param]').forEach(el=>{
-    const name=el.dataset.param,src=el.dataset.src;
-    if(src==='col'||src==='enum'){
-      const v=el.value;
-      if(v&&v!=='__static__'){
-        if(v.startsWith('col:')) paramMap[name]={type:'col',value:v.slice(4)};
-        else if(v.startsWith('enum:')) paramMap[name]={type:'static',value:v.slice(5)};
-        else paramMap[name]={type:'static',value:v};
-      }
-    }else if(src==='static'){
-      const colSel=el.closest('div').querySelector('[data-src="col"]');
-      if(colSel&&colSel.value==='__static__'&&el.value.trim()) paramMap[name]={type:'static',value:el.value.trim()};
+  const showList = () => { reposition(); list.style.display = 'block'; };
+  const hideList = () => { list.style.display = 'none'; selectedIdx = -1; };
+
+  // Full original names, sorted — used for display and search
+  const allNames = () =>
+    [...sevClients].map(c => c.name).sort((a, b) => a.localeCompare(b, 'en', {sensitivity:'base'}));
+
+  const buildItems = names => {
+    matchedNames = names;
+    list.innerHTML = names.map((name, i) => {
+      const isS = sevClients.some(c => c.name === name && c.strategic);
+      return '<div class="ta-item" data-idx="' + i + '">'
+        + name
+        + (isS ? '<span class="ta-sdot" title="Strategic"></span>' : '')
+        + '</div>';
+    }).join('');
+
+    list.querySelectorAll('.ta-item').forEach(el => {
+      // pointerdown fires before blur — selection goes through before dropdown closes
+      el.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        inp.value = matchedNames[+el.dataset.idx];
+        hideList();
+        renderStrategicUI(deriveStrategic());
+      });
+    });
+  };
+
+  const runFilter = () => {
+    const q = inp.value.trim().toLowerCase();
+    if (!q) { hideList(); renderStrategicUI(false); return; }
+    const hits = allNames().filter(n => n.toLowerCase().includes(q)).slice(0, 12);
+    if (hits.length) { buildItems(hits); showList(); }
+    else { hideList(); }
+    renderStrategicUI(deriveStrategic());
+  };
+
+  inp.addEventListener('input', runFilter);
+  inp.addEventListener('focus', runFilter);
+  inp.addEventListener('blur', () => setTimeout(hideList, 180));
+  window.addEventListener('resize', () => { if (list.style.display === 'block') reposition(); });
+
+  inp.addEventListener('keydown', e => {
+    if (list.style.display !== 'block' || !matchedNames.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIdx = Math.min(selectedIdx + 1, matchedNames.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIdx = Math.max(selectedIdx - 1, 0);
+    } else if (e.key === 'Enter' && selectedIdx >= 0) {
+      e.preventDefault();
+      inp.value = matchedNames[selectedIdx];
+      hideList();
+      renderStrategicUI(deriveStrategic());
+      return;
+    } else if (e.key === 'Escape') {
+      hideList();
+      return;
     }
+    list.querySelectorAll('.ta-item').forEach((el, i) => {
+      el.classList.toggle('hi', i === selectedIdx);
+      if (i === selectedIdx) el.scrollIntoView({ block: 'nearest' });
+    });
   });
-  const outputMap=[];
-  G('enr-output-list')?.querySelectorAll('.output-mapping-row').forEach(row=>{
-    const sel=row.querySelector('select'),inp=row.querySelector('input');
-    if(sel&&inp&&sel.value&&inp.value.trim()) outputMap.push({field:sel.value,col:inp.value.trim()});
+};
+
+function openClientModal(){ G('clientModal').classList.add('open'); renderClients(); }
+function closeClientModal(){ G('clientModal').classList.remove('open'); }
+function renderClients(){
+  const ul=G('client-list-ul');
+  ul.innerHTML=[...sevClients].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>
+    `<li class="citem" data-name="${c.name.replace(/"/g,'&quot;')}"><span class="cname">${c.name}</span><button class="stog ${c.strategic?'on':'off'}" data-action="toggle">${c.strategic?'★ Strategic':'☆ Mark Strategic'}</button><button class="btn xs danger" data-action="del">✕</button></li>`
+  ).join('');
+  ul.querySelectorAll('[data-action="toggle"]').forEach(btn=>btn.addEventListener('click',()=>{const c=sevClients.find(x=>x.name===btn.closest('li').dataset.name);if(c){c.strategic=!c.strategic;sevSave();renderClients();}}));
+  ul.querySelectorAll('[data-action="del"]').forEach(btn=>btn.addEventListener('click',()=>{const n=btn.closest('li').dataset.name;if(confirm(`Remove "${n}"?`)){sevClients=sevClients.filter(x=>x.name!==n);sevSave();renderClients();}}));
+}
+function addClient(){
+  const inp=G('new-client-input'),name=inp.value.trim(),msg=G('add-client-msg');
+  if(!name){msg.textContent='Enter a name.';return;}
+  if(sevClients.find(c=>c.name.toLowerCase()===name.toLowerCase())){msg.textContent='Already exists.';return;}
+  sevClients.push({name,strategic:false});sevSave();renderClients();inp.value='';msg.textContent='';
+}
+function initChipGroup(id){
+  G(id)?.querySelectorAll('.chip').forEach(c=>{
+    c.addEventListener('click',()=>setChips(id,c.dataset.val));
+    c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setChips(id,c.dataset.val);}});
   });
-  if(!outputMap.length){alert('Add at least one output field mapping.');return null;}
-  return{name:ep.label,url,cat,env:G('enr-env').value,paramMap,outputMap};
 }
 
-function enrRenderPipeline(){
-  const list=G('enr-pipeline-list');
-  G('stat-steps').textContent=enrPipeline.length;
-  if(!enrPipeline.length){list.innerHTML='<div class="pipeline-empty">No steps yet.<br/>Build your pipeline using the editor →</div>';G('btnEnrRun').disabled=true;return;}
-  list.innerHTML=enrPipeline.map((s,i)=>{
-    const envClass='env-'+s.env;
-    const inTags=Object.entries(s.paramMap).map(([k,v])=>`<span class="step-tag in">${k}: ${v.type==='col'?'['+v.value+']':v.value}</span>`).join('');
-    const outTags=s.outputMap.map(o=>`<span class="step-tag out">${o.field}→${o.col}</span>`).join('');
-    return`<div class="step-card"><div class="step-card-head"><div class="step-num">${i+1}</div><div class="step-name">${s.name}</div><div class="step-env-dot ${envClass}" title="${s.env}"></div><button class="btn xs ghost-danger" data-del="${i}">✕</button></div><div class="step-body"><div class="step-url">${s.url}</div><div class="step-tags">${inTags}${outTags}</div></div></div>`;
-  }).join('');
-  list.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{enrPipeline.splice(+btn.dataset.del,1);enrRenderPipeline();}));
-  G('btnEnrRun').disabled=!enrCSVData||enrRunning;
-}
-
-// CSV handling
-function enrLoadCSV(file){
-  Papa.parse(file,{header:true,skipEmptyLines:true,complete(res){
-    enrCSVData=res.data;enrCSVHeaders=res.meta.fields||[];
-    G('enr-file-area').innerHTML=`<div class="file-loaded"><div class="file-loaded-icon">📄</div><div class="file-loaded-info"><div class="file-loaded-name">${file.name}</div><div class="file-loaded-meta">${enrCSVData.length} rows · ${enrCSVHeaders.length} columns</div></div><button class="btn xs ghost-danger" id="btnEnrRemoveFile">✕</button></div>`;
-    G('btnEnrRemoveFile').addEventListener('click',()=>{enrCSVData=null;enrCSVHeaders=[];enrResultRows=[];G('stat-total').textContent='—';G('btnEnrRun').disabled=true;G('btnEnrDownload').disabled=true;enrInitDropZone();});
-    G('stat-total').textContent=enrCSVData.length;
-    G('btnEnrRun').disabled=!enrPipeline.length||enrRunning;
-    enrLog('CSV loaded: '+file.name+' — '+enrCSVData.length+' rows, cols: '+enrCSVHeaders.join(', '),'ok');
-    // re-render params with new columns
-    enrOnEpChange();
-  },error(e){enrLog('CSV parse error: '+e.message,'err');}});
-}
-
-function enrInitDropZone(){
-  G('enr-file-area').innerHTML=`<div class="file-drop" id="enr-drop-zone"><div class="file-drop-icon">📂</div><p><strong>Click to upload</strong> or drag & drop</p><p>.csv files only</p></div><input type="file" id="enr-file-input" accept=".csv" style="display:none"/>`;
-  const dz=G('enr-drop-zone'),fi=G('enr-file-input');
-  dz.addEventListener('click',()=>fi.click());
-  fi.addEventListener('change',()=>fi.files[0]&&enrLoadCSV(fi.files[0]));
-  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
-  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
-  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])enrLoadCSV(e.dataTransfer.files[0]);});
-}
-
-// resolve param value for a row
-function enrResolve(conf,row){
-  if(!conf) return null;
-  if(conf.type==='static') return conf.value;
-  if(conf.type==='col'){const v=row[conf.value];return(v===undefined||v===null||v==='') ? null : String(v);}
-  return null;
-}
-
-// process single row through pipeline
-async function enrProcessRow(row,pipeline,baseUrl,token){
-  const out={...row,_enr_errors:''};
-  for(let i=0;i<pipeline.length;i++){
-    const step=pipeline[i];
-    try{
-      // build URL
-      let url=baseUrl.replace(/\/$/,'')+step.url;
-      let skip=false;
-      // path params
-      for(const [k,conf] of Object.entries(step.paramMap)){
-        if(step.url.includes('{'+k+'}')){
-          const v=enrResolve(conf,out);
-          if(!v){skip=true;break;}
-          url=url.replace('{'+k+'}',encodeURIComponent(v));
-        }
-      }
-      if(skip){out._enr_errors+=`[Step${i+1}: missing path param] `;continue;}
-      // query params
-      const qp=new URLSearchParams();
-      for(const [k,conf] of Object.entries(step.paramMap)){
-        if(!step.url.includes('{'+k+'}')){
-          const v=enrResolve(conf,out);
-          if(v!==null) qp.append(k,v);
-        }
-      }
-      const fullUrl=url+(qp.toString()?'?'+qp.toString():'');
-      const headers={'Accept':'application/json'};
-      if(token) headers['Authorization']='Bearer '+token;
-      const resp=await fetch(fullUrl,{headers});
-      if(!resp.ok){out._enr_errors+=`[Step${i+1}: HTTP ${resp.status}] `;continue;}
-      const data=await resp.json();
-      // extract outputs
-      for(const mapping of step.outputMap){
-        let val=data;
-        for(const k of mapping.field.split('.')){
-          if(val===null||val===undefined){val='';break;}
-          if(Array.isArray(val)) val=val[0];
-          val=typeof val==='object'?val[k]:undefined;
-        }
-        if(Array.isArray(val)&&val.length) val=val[0];
-        if(typeof val==='object'&&val!==null) val=JSON.stringify(val);
-        out[mapping.col]=val??'';
-      }
-    }catch(err){out._enr_errors+=`[Step${i+1}: ${err.message}] `;}
-  }
-  return out;
-}
-
-// concurrency pool
-async function enrRunPool(tasks,concurrency,onDone){
-  let idx=0;
-  async function worker(){while(idx<tasks.length){const i=idx++;const result=await tasks[i]();onDone(result,i);}}
-  const workers=Array.from({length:concurrency},worker);
-  await Promise.all(workers);
-}
-
-async function enrRun(){
-  if(!enrCSVData||!enrCSVData.length){alert('Upload a CSV first.');return;}
-  if(!enrPipeline.length){alert('Add at least one pipeline step.');return;}
-  enrRunning=true;G('btnEnrRun').disabled=true;enrResultRows=[];
-  let processed=0,errors=0;const total=enrCSVData.length;
-  const env=enrPipeline[0]?.env||'prod'; // use env of first step
-  const baseUrl=ENR_BASES[env]||ENR_BASES.prod;
-  const token=G('enr-token').value.trim();
-  const conc=parseInt(G('enr-concurrency').value)||3;
-  G('stat-processed').textContent=0;G('stat-errors').textContent=0;G('enr-progress').style.width='0%';G('enr-eta').textContent='Running…';
-  enrLog('Starting run: '+total+' rows, concurrency '+conc+', env: '+env);
-  const t0=Date.now();
-  const tasks=enrCSVData.map((row,i)=>async()=>{
-    const result=await enrProcessRow(row,enrPipeline,baseUrl,token);
-    return result;
-  });
-  await enrRunPool(tasks,conc,(result)=>{
-    enrResultRows.push(result);
-    if(result._enr_errors) errors++;
-    processed++;
-    G('stat-processed').textContent=processed;G('stat-errors').textContent=errors;
-    const pct=processed/total;G('enr-progress').style.width=(pct*100).toFixed(1)+'%';
-    const elapsed=(Date.now()-t0)/1000;const rate=processed/elapsed;const eta=Math.round((total-processed)/rate);
-    G('enr-eta').textContent=processed<total?`ETA: ~${eta}s`:`Done in ${elapsed.toFixed(1)}s`;
-    if(processed%20===0||processed===total) enrLog(`${processed}/${total} rows processed${errors?' ('+errors+' errors)':''}`);
-  });
-  enrLog('Run complete: '+processed+' rows, '+errors+' errors','ok');
-  G('btnEnrRun').disabled=false;G('btnEnrDownload').disabled=false;enrRunning=false;
-}
-
-function enrDownload(){
-  if(!enrResultRows.length){alert('No results to download.');return;}
-  const csv=Papa.unparse(enrResultRows);
-  const blob=new Blob([csv],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='bw_enriched.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  enrLog('Downloaded enriched CSV ('+enrResultRows.length+' rows)','ok');
-}
-
-function enrTestRow(){
-  if(!enrCSVData||!enrCSVData.length){G('enr-preview-card').style.display='none';alert('Upload a CSV first.');return;}
-  const step=enrCollectStep();if(!step)return;
-  const row=enrCSVData[0];
-  const env=step.env,baseUrl=ENR_BASES[env];
-  let url=baseUrl.replace(/\/$/,'')+step.url;
-  const qp=new URLSearchParams();
-  const issues=[];
-  for(const[k,conf]of Object.entries(step.paramMap)){
-    const v=enrResolve(conf,row);
-    if(step.url.includes('{'+k+'}')){if(v)url=url.replace('{'+k+'}',encodeURIComponent(v));else issues.push('Missing path: '+k);}
-    else{if(v!==null)qp.append(k,v);}
-  }
-  const fullUrl=url+(qp.toString()?'?'+qp.toString():'');
-  G('enr-preview-card').style.display='';
-  G('enr-preview-body').textContent='Preview URL:\n'+fullUrl+(issues.length?'\n\nWarnings:\n'+issues.join('\n'):'');
-}
-
-function enrInit(){
-  enrInited=true;
-  enrInitDropZone();
-  G('enr-cat').addEventListener('change',enrOnCatChange);
-  G('enr-ep').addEventListener('change',enrOnEpChange);
-  G('btnLoadSwagger').addEventListener('click',enrLoadSwagger);
-  G('btnEnrAddStep').addEventListener('click',()=>{const s=enrCollectStep();if(s){enrPipeline.push(s);enrRenderPipeline();enrLog('Added step: '+s.name,'ok');}});
-  G('btnEnrClearBuilder').addEventListener('click',()=>{G('enr-params-area').innerHTML='';G('enr-outputs-area').innerHTML='';G('enr-ep-url').textContent='';});
-  G('btnEnrRun').addEventListener('click',enrRun);
-  G('btnEnrDownload').addEventListener('click',enrDownload);
-  G('btnEnrClearPipeline').addEventListener('click',()=>{if(!enrPipeline.length||confirm('Clear all pipeline steps?')){enrPipeline=[];enrRenderPipeline();enrLog('Pipeline cleared');}});
-  G('enr-concurrency').addEventListener('input',()=>G('enr-conc-val').textContent=G('enr-concurrency').value);
-  G('enr-env').addEventListener('change',()=>{enrSwagger=null;G('enr-swagger-status').textContent='';G('enr-cat').innerHTML='<option>— Load schema first —</option>';G('enr-ep').innerHTML='<option>— Select category —</option>';G('enr-params-area').innerHTML='';G('enr-outputs-area').innerHTML='';});
-  // auto-load swagger
-  enrLoadSwagger();
-}
-
-// ══════════════════════════════════════════════════════════
-// POLICY BUILDER
-// ══════════════════════════════════════════════════════════
-const POL_PARAMS=[{value:'stock_float',label:'Stock Float (%)',type:'float'},{value:'market_cap',label:'Market Cap',type:'currency'},{value:'volume',label:'Volume',type:'currency'},{value:'exchange',label:'Exchange ID',type:'list'},{value:'index',label:'Index ID',type:'list'},{value:'domicile_country',label:'Domicile Country ID',type:'list'},{value:'exchange_country',label:'Exchange Country ID',type:'list'}];
-const MATH_OPS=[{v:'ge',l:'>= (≥)'},{v:'le',l:'<= (≤)'},{v:'gt',l:'> (gt)'},{v:'lt',l:'< (lt)'}];
-const LIST_OPS=[{v:'isin',l:'IS IN (include)'},{v:'notin',l:'NOT IN (exclude)'}];
-const PRESETS={large_cap_us:[{configuration:[{name:'market_cap',operator:'ge',value:10000000000,currency_id:1},{name:'exchange_country',operator:'isin',value:[213]}],group:1}],mid_cap_eu:[{configuration:[{name:'market_cap',operator:'ge',value:2000000000,currency_id:1},{name:'market_cap',operator:'le',value:10000000000,currency_id:1},{name:'exchange_country',operator:'isin',value:[1,2,3,4,5,6]}],group:1}],exclude_non_liquid:[{configuration:[{name:'volume',operator:'ge',value:500000,currency_id:1},{name:'stock_float',operator:'ge',value:15}],group:1}],index_members:[{configuration:[{name:'index',operator:'isin',value:[100,101,102]}],group:1}],tase_domestic:[{configuration:[{name:'exchange',operator:'isin',value:[531]},{name:'domicile_country',operator:'isin',value:[101]}],group:1}]};
-let polGroups=[],polGId=1,polRId=1,polInited=false;
-function polParam(n){return POL_PARAMS.find(p=>p.value===n);}
+/* ═══════════════════════════════════
+   POLICY BUILDER
+═══════════════════════════════════ */
+const PP=[{value:'stock_float',label:'Stock Float (%)',type:'float'},{value:'market_cap',label:'Market Cap',type:'currency'},{value:'volume',label:'Volume',type:'currency'},{value:'exchange',label:'Exchange ID',type:'list'},{value:'index',label:'Index ID',type:'list'},{value:'domicile_country',label:'Domicile Country ID',type:'list'},{value:'exchange_country',label:'Exchange Country ID',type:'list'}];
+const MOPS=[{v:'ge',l:'>= (≥)'},{v:'le',l:'<= (≤)'},{v:'gt',l:'> (gt)'},{v:'lt',l:'< (lt)'}];
+const LOPS=[{v:'isin',l:'IS IN (include)'},{v:'notin',l:'NOT IN (exclude)'}];
+const PRESETS={large_cap_us:[{configuration:[{name:'market_cap',operator:'ge',value:10000000000,currency_id:1},{name:'exchange_country',operator:'isin',value:[213]}],group:1}],mid_cap_eu:[{configuration:[{name:'market_cap',operator:'ge',value:2000000000,currency_id:1},{name:'market_cap',operator:'le',value:10000000000,currency_id:1},{name:'exchange_country',operator:'isin',value:[1,2,3,4,5,6]}],group:1}],exclude_illiquid:[{configuration:[{name:'volume',operator:'ge',value:500000,currency_id:1},{name:'stock_float',operator:'ge',value:15}],group:1}],index_members:[{configuration:[{name:'index',operator:'isin',value:[100,101,102]}],group:1}],tase_domestic:[{configuration:[{name:'exchange',operator:'isin',value:[531]},{name:'domicile_country',operator:'isin',value:[101]}],group:1}]};
+let polGroups=[],polGId=1,polRId=1;
+const polP=n=>PP.find(p=>p.value===n);
 function polFromApi(arr){return arr.map(g=>({id:polGId++,rules:(g.configuration||[]).map(r=>({id:polRId++,name:r.name||'',operator:r.operator||'ge',value:r.value,currency_id:r.currency_id,rawValue:Array.isArray(r.value)?r.value.join(', '):''}))}))}
-function polToApi(){return polGroups.map((g,idx)=>{const vr=g.rules.filter(r=>r.name&&r.operator);return vr.length?{configuration:vr.map(r=>{const o={name:r.name,operator:r.operator,value:r.value};if(r.currency_id!==undefined)o.currency_id=r.currency_id;return o;}),group:idx+1}:null;}).filter(Boolean);}
-function polHL(json){return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{if(/^"/.test(m))return/:$/.test(m)?`<span class="j-key">${m}</span>`:`<span class="j-str">${m}</span>`;if(/true|false/.test(m))return`<span class="j-bool">${m}</span>`;return`<span class="j-num">${m}</span>`;});}
-function polUpdateJSON(){const api=polToApi();G('pol-json').innerHTML=polHL(JSON.stringify(api,null,2));G('pol-stat-g').textContent=polGroups.length;G('pol-stat-r').textContent=polGroups.reduce((s,g)=>s+g.rules.length,0);G('pol-stat-v').innerHTML=api.length?`<strong style="color:#10b981">${api.length} valid</strong>`:'';}
-function polRender(){const c=G('pol-groups');c.innerHTML='';polGroups.forEach((g,gi)=>{if(gi>0){const d=document.createElement('div');d.className='or-div';d.innerHTML='<span class="or-pill">OR</span>';c.appendChild(d);}const card=document.createElement('div');card.className='pol-group-card';card.innerHTML=`<div class="pol-ghead"><div class="pol-glabel">Group ${gi+1}<span class="and-badge">AND</span></div><button class="btn xs ghost-danger" data-a="rg" data-gid="${g.id}">Remove</button></div><div class="pol-gbody" id="pg-${g.id}">${g.rules.length?'':'<div class="pol-empty">No rules yet.</div>'}</div><div style="padding:0 14px 10px"><button class="btn xs solid" data-a="ar" data-gid="${g.id}">+ Add Rule</button></div>`;c.appendChild(card);const rb=card.querySelector('#pg-'+g.id);g.rules.forEach(rule=>{const p=polParam(rule.name),isL=p&&p.type==='list',isC=p&&p.type==='currency';const ops=isL?LIST_OPS:MATH_OPS;const fin=POL_PARAMS.filter(x=>!['exchange','index','domicile_country','exchange_country'].includes(x.value));const ids=POL_PARAMS.filter(x=>['exchange','index','domicile_country','exchange_country'].includes(x.value));let pO=`<option value="" disabled ${!rule.name?'selected':''}>Select…</option><optgroup label="Financial">`+fin.map(x=>`<option value="${x.value}"${rule.name===x.value?' selected':''}>${x.label}</option>`).join('')+`</optgroup><optgroup label="Location / ID">`+ids.map(x=>`<option value="${x.value}"${rule.name===x.value?' selected':''}>${x.label}</option>`).join('')+`</optgroup>`;let opO=ops.map(o=>`<option value="${o.v}"${rule.operator===o.v?' selected':''}>${o.l}</option>`).join('');let valF='';if(p){if(isC)valF=`<div class="rule-field"><label>Cur. ID</label><input class="cur-inp" type="number" min="1" value="${rule.currency_id||1}" data-a="u" data-f="currency_id" data-gid="${g.id}" data-rid="${rule.id}"/></div><div class="rule-field"><label>Threshold</label><input class="val-inp" type="number" step="any" value="${rule.value||''}" data-a="u" data-f="value_num" data-gid="${g.id}" data-rid="${rule.id}"/></div>`;else if(isL)valF=`<div class="rule-field"><label>IDs (comma-sep)</label><input class="list-inp" type="text" value="${rule.rawValue||''}" data-a="u" data-f="value_list" data-gid="${g.id}" data-rid="${rule.id}"/></div>`;else valF=`<div class="rule-field"><label>Threshold</label><input class="val-inp" type="number" step="any" value="${rule.value||''}" data-a="u" data-f="value_num" data-gid="${g.id}" data-rid="${rule.id}"/></div>`;}const row=document.createElement('div');row.className='rule-row';row.innerHTML=`<div class="rule-field"><label>Parameter</label><select class="param-sel" data-a="u" data-f="name" data-gid="${g.id}" data-rid="${rule.id}">${pO}</select></div>${p?`<div class="rule-field"><label>Operator</label><select class="op-sel" data-a="u" data-f="operator" data-gid="${g.id}" data-rid="${rule.id}">${opO}</select></div>`:''} ${valF}<div class="rule-spacer"></div><button class="btn xs ghost-danger" data-a="rr" data-gid="${g.id}" data-rid="${rule.id}" style="align-self:flex-end">✕</button>`;rb.appendChild(row);});});c.querySelectorAll('[data-a]').forEach(el=>{el.addEventListener('change',polAct);el.addEventListener('click',polAct);el.addEventListener('input',polAct);});polUpdateJSON();}
-function polAct(e){const el=e.currentTarget,a=el.dataset.a,gid=parseInt(el.dataset.gid),rid=parseInt(el.dataset.rid),gi=polGroups.findIndex(g=>g.id===gid);if(a==='rg'){polGroups.splice(gi,1);polRender();return;}if(a==='ar'){polGroups[gi].rules.push({id:polRId++,name:'',operator:'ge',value:null,currency_id:1,rawValue:''});polRender();return;}if(a==='rr'){const ri=polGroups[gi].rules.findIndex(r=>r.id===rid);if(ri>-1){polGroups[gi].rules.splice(ri,1);polRender();}return;}if(a==='u'){const f=el.dataset.f,ri=polGroups[gi].rules.findIndex(r=>r.id===rid);if(ri===-1)return;const rule=polGroups[gi].rules[ri];if(f==='name'){rule.name=el.value;const p=polParam(rule.name);if(p){rule.operator=p.type==='list'?'isin':'ge';rule.value=p.type==='list'?[]:0;rule.currency_id=p.type==='currency'?1:undefined;rule.rawValue='';}polRender();}else if(f==='operator'){rule.operator=el.value;polUpdateJSON();}else if(f==='value_num'){rule.value=parseFloat(el.value)||0;polUpdateJSON();}else if(f==='currency_id'){rule.currency_id=parseInt(el.value)||1;polUpdateJSON();}else if(f==='value_list'){rule.rawValue=el.value;rule.value=el.value.split(',').map(v=>parseInt(v.trim())).filter(v=>!isNaN(v));polUpdateJSON();}}}
+function polToApi(){return polGroups.map((g,i)=>{const vr=g.rules.filter(r=>r.name&&r.operator);return vr.length?{configuration:vr.map(r=>{const o={name:r.name,operator:r.operator,value:r.value};if(r.currency_id!==undefined)o.currency_id=r.currency_id;return o;}),group:i+1}:null;}).filter(Boolean);}
+function polHL(json){return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{if(/^"/.test(m))return/:$/.test(m)?'<span class="jk">'+m+'</span>':'<span class="js">'+m+'</span>';if(/true|false/.test(m))return'<span class="jb">'+m+'</span>';if(/null/.test(m))return'<span class="jnull">'+m+'</span>';return'<span class="jn">'+m+'</span>';});}
+function polUpdateJSON(){const api=polToApi();G('pol-json').innerHTML=polHL(JSON.stringify(api,null,2));G('pol-sg').textContent=polGroups.length;G('pol-sr').textContent=polGroups.reduce((s,g)=>s+g.rules.length,0);const v=api.length;G('pol-sv').innerHTML=v?'<strong style="color:#56d364">'+v+' valid</strong>':'';}
+function polRender(){
+  const c=G('pol-groups');c.innerHTML='';
+  polGroups.forEach((g,gi)=>{
+    if(gi>0){const d=document.createElement('div');d.className='or-div';d.innerHTML='<span class="or-pill">OR</span>';c.appendChild(d);}
+    const card=document.createElement('div');card.className='pgcard';
+    card.innerHTML='<div class="pghead"><div class="pglabel">Group '+(gi+1)+'<span class="and-badge">AND</span></div><button class="btn xs danger" data-a="rg" data-gid="'+g.id+'">Remove</button></div><div class="pgbody" id="pg-'+g.id+'">'+(g.rules.length?'':'<div class="pgempty">No rules yet.</div>')+'</div><div style="padding:0 15px 12px"><button class="btn xs solid" data-a="ar" data-gid="'+g.id+'">+ Add Rule</button></div>';
+    c.appendChild(card);
+    const rb=card.querySelector('#pg-'+g.id);
+    g.rules.forEach(rule=>{
+      const p=polP(rule.name),isL=p&&p.type==='list',isC=p&&p.type==='currency';
+      const ops=isL?LOPS:MOPS;
+      const fin=PP.filter(x=>!['exchange','index','domicile_country','exchange_country'].includes(x.value));
+      const ids=PP.filter(x=>['exchange','index','domicile_country','exchange_country'].includes(x.value));
+      let pO='<option value="" disabled '+((!rule.name)?'selected':'')+'>Select…</option><optgroup label="Financial">'+fin.map(x=>'<option value="'+x.value+'"'+(rule.name===x.value?' selected':'')+'>'+x.label+'</option>').join('')+'</optgroup><optgroup label="Location / ID">'+ids.map(x=>'<option value="'+x.value+'"'+(rule.name===x.value?' selected':'')+'>'+x.label+'</option>').join('')+'</optgroup>';
+      let opO=ops.map(o=>'<option value="'+o.v+'"'+(rule.operator===o.v?' selected':'')+'>'+o.l+'</option>').join('');
+      let vF='';
+      if(p){if(isC)vF='<div class="rfield"><label>Cur. ID</label><input class="cinp" type="number" min="1" value="'+(rule.currency_id||1)+'" data-a="u" data-f="currency_id" data-gid="'+g.id+'" data-rid="'+rule.id+'"/></div><div class="rfield"><label>Threshold</label><input class="vinp" type="number" step="any" value="'+(rule.value||'')+'" data-a="u" data-f="value_num" data-gid="'+g.id+'" data-rid="'+rule.id+'"/></div>';else if(isL)vF='<div class="rfield"><label>IDs (comma-sep)</label><input class="linp" type="text" value="'+(rule.rawValue||'')+'" data-a="u" data-f="value_list" data-gid="'+g.id+'" data-rid="'+rule.id+'"/></div>';else vF='<div class="rfield"><label>Threshold</label><input class="vinp" type="number" step="any" value="'+(rule.value||'')+'" data-a="u" data-f="value_num" data-gid="'+g.id+'" data-rid="'+rule.id+'"/></div>';}
+      const row=document.createElement('div');row.className='rrow';
+      row.innerHTML='<div class="rfield"><label>Parameter</label><select class="psel" data-a="u" data-f="name" data-gid="'+g.id+'" data-rid="'+rule.id+'">'+pO+'</select></div>'+(p?'<div class="rfield"><label>Operator</label><select class="osel" data-a="u" data-f="operator" data-gid="'+g.id+'" data-rid="'+rule.id+'">'+opO+'</select></div>':'')+vF+'<div style="flex:1"></div><button class="btn xs danger" data-a="rr" data-gid="'+g.id+'" data-rid="'+rule.id+'" style="align-self:flex-end">✕</button>';
+      rb.appendChild(row);
+    });
+  });
+  // KEY FIX: selects only get 'change', buttons only get 'click'
+  c.querySelectorAll('[data-a]').forEach(el=>{
+    if(el.tagName==='SELECT'||el.tagName==='INPUT'){ el.addEventListener('change',polAct); el.addEventListener('input',polAct); }
+    else{ el.addEventListener('click',polAct); }
+  });
+  polUpdateJSON();
+}
+function polAct(e){const el=e.currentTarget,a=el.dataset.a,gid=parseInt(el.dataset.gid),rid=parseInt(el.dataset.rid),gi=polGroups.findIndex(g=>g.id===gid);if(a==='rg'){polGroups.splice(gi,1);polRender();return;}if(a==='ar'){polGroups[gi].rules.push({id:polRId++,name:'',operator:'ge',value:null,currency_id:1,rawValue:''});polRender();return;}if(a==='rr'){const ri=polGroups[gi].rules.findIndex(r=>r.id===rid);if(ri>-1){polGroups[gi].rules.splice(ri,1);polRender();}return;}if(a==='u'){const f=el.dataset.f,ri=polGroups[gi].rules.findIndex(r=>r.id===rid);if(ri===-1)return;const rule=polGroups[gi].rules[ri];if(f==='name'){rule.name=el.value;const p=polP(rule.name);if(p){rule.operator=p.type==='list'?'isin':'ge';rule.value=p.type==='list'?[]:0;rule.currency_id=p.type==='currency'?1:undefined;rule.rawValue='';}polRender();}else if(f==='operator'){rule.operator=el.value;polUpdateJSON();}else if(f==='value_num'){rule.value=parseFloat(el.value)||0;polUpdateJSON();}else if(f==='currency_id'){rule.currency_id=parseInt(el.value)||1;polUpdateJSON();}else if(f==='value_list'){rule.rawValue=el.value;rule.value=el.value.split(',').map(v=>parseInt(v.trim())).filter(v=>!isNaN(v));polUpdateJSON();}}}
 function polAddGroup(){polGroups.push({id:polGId++,rules:[]});polRender();}
-function polClearAll(){if(!polGroups.length||confirm('Clear all groups?')){polGroups=[];polRender();}}
-function polLoadPreset(key){if(!key)return;if(polGroups.length&&!confirm('Replace with preset?')){G('pol-preset').value='';return;}polGroups=polFromApi(PRESETS[key]);polRender();G('pol-preset').value='';}
-async function polCopy(){try{await navigator.clipboard.writeText(JSON.stringify(polToApi(),null,2));G('btnPolCopy').textContent='✓ Copied';setTimeout(()=>G('btnPolCopy').textContent='Copy',2000);}catch(e){}}
+function polClearAll(){if(!polGroups.length||confirm('Clear all?')){polGroups=[];polRender();}}
+function polLoadPreset(k){if(!k)return;if(polGroups.length&&!confirm('Replace with preset?')){G('pol-preset').value='';return;}polGroups=polFromApi(PRESETS[k]);polRender();G('pol-preset').value='';}
+async function polCopyJson(){try{await navigator.clipboard.writeText(JSON.stringify(polToApi(),null,2));G('btnPolCopyJson').textContent='✓ Copied';setTimeout(()=>G('btnPolCopyJson').textContent='Copy',2000);}catch(e){}}
 function polDownload(){const b=new Blob([JSON.stringify(polToApi(),null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='bw-policy.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
 function polOpenImport(){G('pol-import-modal').classList.add('open');G('pol-import-ta').value='';G('pol-import-err').style.display='none';}
 function polCloseImport(){G('pol-import-modal').classList.remove('open');}
-function polDoImport(){try{const arr=JSON.parse(G('pol-import-ta').value.trim());if(!Array.isArray(arr))throw new Error('Expected array');polGroups=polFromApi(arr);polRender();polCloseImport();}catch(e){const err=G('pol-import-err');err.textContent='Invalid JSON: '+e.message;err.style.display='block';}}
-function polInit(){polInited=true;polGroups=[{id:polGId++,rules:[{id:polRId++,name:'',operator:'ge',value:null,currency_id:1,rawValue:''}]}];polRender();G('pol-preset').addEventListener('change',e=>polLoadPreset(e.target.value));G('btnPolAddGroup').addEventListener('click',polAddGroup);G('btnPolClear').addEventListener('click',polClearAll);G('btnPolCopy').addEventListener('click',polCopy);G('btnPolExport').addEventListener('click',polDownload);G('btnPolImport').addEventListener('click',polOpenImport);G('btnCloseImport').addEventListener('click',polCloseImport);G('btnCancelImport').addEventListener('click',polCloseImport);G('btnDoImport').addEventListener('click',polDoImport);G('pol-import-modal').addEventListener('click',e=>{if(e.target===G('pol-import-modal'))polCloseImport();});}
+function polDoImport(){try{const arr=JSON.parse(G('pol-import-ta').value.trim());if(!Array.isArray(arr))throw new Error('Expected array');polGroups=polFromApi(arr);polRender();polCloseImport();}catch(e){const er=G('pol-import-err');er.textContent='Invalid JSON: '+e.message;er.style.display='block';}}
+function polInit(){
+  polInited=true;
+  polGroups=[{id:polGId++,rules:[{id:polRId++,name:'',operator:'ge',value:null,currency_id:1,rawValue:''}]}];
+  polRender();
+  G('pol-preset').addEventListener('change',e=>polLoadPreset(e.target.value));
+  G('btnPolAddGroup').addEventListener('click',polAddGroup);
+  G('btnPolClear').addEventListener('click',polClearAll);
+  G('btnPolCopyJson').addEventListener('click',polCopyJson);
+  G('btnPolExport').addEventListener('click',polDownload);
+  G('btnPolImport').addEventListener('click',polOpenImport);
+  G('btnCloseImport').addEventListener('click',polCloseImport);
+  G('btnCancelImport').addEventListener('click',polCloseImport);
+  G('btnDoImport').addEventListener('click',polDoImport);
+  G('pol-import-modal').addEventListener('click',e=>{if(e.target===G('pol-import-modal'))polCloseImport();});
+}
 
-// ══════════════════════════════════════════════════════════
-// BOOT
-// ══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════
+   BOOT
+═══════════════════════════════════ */
 document.addEventListener('DOMContentLoaded',()=>{
-  sevLoad();sevInitTA();
-  ['whoChips','q1Chips','q2Chips','q3Chips','urgencyChips','affectChips','workaroundChips'].forEach(initChipGroup);
-  G('modeEsc').addEventListener('click',()=>sevSwitchMode('escalation'));
-  G('modeJira').addEventListener('click',()=>sevSwitchMode('jira'));
-  sevSwitchMode('escalation');
-  G('btnCalc').addEventListener('click',sevCalculate);
-  G('btnCopySev').addEventListener('click',sevCopy);
-  G('btnReset').addEventListener('click',sevReset);
+  sevLoad(); initTypeahead(); initGauge();
+  ['whoChips','q1ImpairmentChips','q2DataChips','q3ScopeChips','urgencyChips','affectChips','workaroundChips'].forEach(initChipGroup);
+  document.querySelectorAll('.mode .chip').forEach(btn=>{
+    btn.addEventListener('click',()=>switchMode(btn.dataset.mode));
+    btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();switchMode(btn.dataset.mode);}});
+  });
+  switchMode('escalation');
+  G('btnCalc').addEventListener('click',calculate);
+  G('btnSnap').addEventListener('click',captureScreenshot);
+  G('btnReset').addEventListener('click',resetAll);
   G('btnManageClients').addEventListener('click',openClientModal);
   G('btnCloseClients').addEventListener('click',closeClientModal);
   G('btnCloseClients2').addEventListener('click',closeClientModal);
   G('btnAddClient').addEventListener('click',addClient);
   G('new-client-input').addEventListener('keydown',e=>{if(e.key==='Enter')addClient();});
   G('clientModal').addEventListener('click',e=>{if(e.target===G('clientModal'))closeClientModal();});
-  document.addEventListener('keydown',e=>{
-    if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();sevCalculate();}
-    if(e.key==='Escape'){closeClientModal();polCloseImport();}
-  });
+  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();calculate();}if(e.key==='Escape'){closeClientModal();polCloseImport();}});
+  setTimeout(()=>enterScreen('severity'),60);
 });
 </script>
 </body>
