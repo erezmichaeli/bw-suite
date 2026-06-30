@@ -256,6 +256,47 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
 #s-policy .body{flex:1;overflow:hidden;display:flex;flex-direction:row;gap:0}
 .pol-left{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .pol-right{width:360px;flex-shrink:0;background:#0d1117;display:flex;flex-direction:column;overflow:hidden}
+
+/* Policy tabs */
+.pol-tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0;background:rgba(255,255,255,.8);backdrop-filter:blur(12px)}
+.pol-tab{flex:1;padding:11px 8px;font-size:12px;font-weight:600;color:var(--ink3);border:none;background:transparent;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:var(--t);text-align:center}
+.pol-tab:hover{color:var(--ink2);background:rgba(37,99,235,.04)}
+.pol-tab.active{color:var(--blue2);border-bottom-color:var(--blue)}
+.pol-panel{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.pol-panel.active{display:flex}
+
+/* Reader panel */
+.reader-pane{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.reader-input-card{background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh0);flex-shrink:0}
+.reader-input-head{padding:10px 15px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,var(--surf2),var(--surf));font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between}
+.reader-input-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.reader-json-ta{width:100%;height:130px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:10px;border:1.5px solid var(--bd);border-radius:var(--r);resize:vertical;background:var(--surf2);color:var(--ink);line-height:1.5}
+.reader-json-ta:focus{border-color:var(--blue);outline:none;box-shadow:var(--focus)}
+.reader-token-row{display:flex;gap:7px}
+.reader-token-row input{flex:1;font-size:12px;padding:7px 10px;border:1.5px solid var(--bd);border-radius:var(--r);font-family:inherit;background:var(--surf);color:var(--ink)}
+.reader-token-row input:focus{border-color:var(--blue);outline:none;box-shadow:var(--focus)}
+.reader-status{font-size:10.5px;color:var(--ink3);display:flex;align-items:center;gap:5px;min-height:16px}
+.reader-status.loading::before{content:'';width:10px;height:10px;border:2px solid var(--blue);border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+.reader-status.ok{color:var(--green)}
+.reader-status.err{color:var(--red)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Explanation output */
+.explanation-card{background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh);flex:1;display:none;flex-direction:column}
+.explanation-card.visible{display:flex}
+.explanation-head{padding:10px 15px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,var(--surf2),var(--surf));font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.explanation-body{flex:1;overflow-y:auto;padding:14px 16px;font-size:13px;color:var(--ink2);line-height:1.7}
+.explanation-body .pol-group-block{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,rgba(37,99,235,.04),rgba(37,99,235,.02));border:1px solid rgba(37,99,235,.1);border-radius:var(--r-lg)}
+.explanation-body .pol-group-block h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--blue2);margin-bottom:8px}
+.explanation-body .pol-group-block ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.explanation-body .pol-group-block li{font-size:12.5px;color:var(--ink2);display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.explanation-body .pol-group-block li::before{content:'▸';color:var(--blue);flex-shrink:0;margin-top:1px}
+.explanation-or-sep{text-align:center;font-size:10px;font-weight:800;color:var(--amber);letter-spacing:.12em;margin:4px 0;text-transform:uppercase}
+.explanation-summary{margin-top:8px;padding:10px 13px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:var(--r);font-size:12px;color:var(--ink2);line-height:1.55}
+.resolved-ids-wrap{margin-top:10px;padding:8px 12px;background:var(--surf2);border:1px solid var(--bd);border-radius:var(--r);font-size:11px;color:var(--ink3)}
+.resolved-ids-wrap details summary{cursor:pointer;font-weight:600;color:var(--ink3)}
+.id-chip{display:inline-flex;gap:4px;align-items:center;padding:1px 6px;background:var(--blue-s);border:1px solid var(--blue-b);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue2);margin:2px}
+.tenant-loaded-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(16,185,129,.08);color:#065f46;border:1px solid rgba(16,185,129,.25)}
 .pol-tb{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:11px 14px;background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:var(--r-xl);flex-shrink:0}
 .pol-tb select{padding:6px 9px;border:1.5px solid var(--bd);border-radius:8px;font-size:12px;font-family:inherit;background:var(--surf)}
 .tsep{width:1px;height:22px;background:var(--bd)}
@@ -307,7 +348,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
       <div class="sb-sec">Tools</div>
       <button class="sb-item active" data-screen="severity"><div class="sb-icon">🚨</div><span class="sb-lbl">Severity Calculator</span></button>
       <button class="sb-item" data-screen="enricher"><div class="sb-icon">⚡</div><span class="sb-lbl">Bulk API Enricher</span><span class="sb-badge">LIVE</span></button>
-      <button class="sb-item" data-screen="policy"><div class="sb-icon">📋</div><span class="sb-lbl">Policy Builder</span></button>
+      <button class="sb-item" data-screen="policy"><div class="sb-icon">📋</div><span class="sb-lbl">Investment Policy</span></button>
     </nav>
     <div class="sb-footer"><div class="sb-dot"></div>v3.1 · Bridgewise</div>
   </div>
@@ -508,26 +549,92 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
 <div class="screen" id="s-policy">
   <div class="topbar">
     <span class="tb-icon">📋</span>
-    <span class="tb-title">Investment Policy Builder</span>
-    <span class="tb-sub">Groups = OR · Rules within group = AND · JSON live</span>
-  </div>
-  <div class="body">
-    <div class="pol-left">
-      <div class="pol-tb">
-        <span style="font-size:11px;font-weight:700;color:var(--ink3)">Presets</span>
-        <select id="pol-preset"><option value="">— Load preset —</option><option value="large_cap_us">Large Cap US</option><option value="mid_cap_eu">Mid Cap EU</option><option value="exclude_illiquid">Exclude Non-Liquid</option><option value="index_members">Index Members Only</option><option value="tase_domestic">TASE Domestic</option></select>
-        <div class="tsep"></div>
-        <button class="btn sm" id="btnPolImport">↑ Import</button>
-        <button class="btn sm solid" id="btnPolExport">↓ Export</button>
-        <button class="btn sm" id="btnPolClear">Clear</button>
+    <span class="tb-title">Investment Policy</span>
+    <span class="tb-sub">Build, export, and explain investment policy configurations</span>
+    <div class="tb-right">
+      <div style="display:flex;gap:0;border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden">
+        <button class="pol-tab-btn active" data-pol-tab="build" style="padding:5px 14px;font-size:12px;font-weight:600;border:none;background:var(--blue);color:#fff;cursor:pointer;font-family:inherit;transition:var(--t)">Build</button>
+        <button class="pol-tab-btn" data-pol-tab="read" style="padding:5px 14px;font-size:12px;font-weight:600;border:none;background:var(--surf);color:var(--ink3);cursor:pointer;font-family:inherit;transition:var(--t)">Read Policy</button>
       </div>
-      <div id="pol-groups" style="display:flex;flex-direction:column;gap:0"></div>
-      <div><button class="btn solid" id="btnPolAddGroup">+ Add Policy Group (OR)</button></div>
     </div>
-    <div class="pol-right">
-      <div class="pjhead"><span class="pjtitle">// policy.json</span><button class="gbtn" id="btnPolCopyJson">Copy</button></div>
-      <div class="pjstats"><span class="pjstat">Groups: <strong id="pol-sg">0</strong></span><span class="pjstat">Rules: <strong id="pol-sr">0</strong></span><span class="pjstat" id="pol-sv"></span></div>
-      <pre id="pol-json">[]</pre>
+  </div>
+
+  <!-- BUILD PANEL -->
+  <div class="pol-panel active" id="pol-panel-build">
+    <div class="body">
+      <div class="pol-left">
+        <div class="pol-tb">
+          <span style="font-size:11px;font-weight:700;color:var(--ink3)">Presets</span>
+          <select id="pol-preset"><option value="">— Load preset —</option><option value="large_cap_us">Large Cap US</option><option value="mid_cap_eu">Mid Cap EU</option><option value="exclude_illiquid">Exclude Non-Liquid</option><option value="index_members">Index Members Only</option><option value="tase_domestic">TASE Domestic</option></select>
+          <div class="tsep"></div>
+          <button class="btn sm" id="btnPolImport">↑ Import</button>
+          <button class="btn sm solid" id="btnPolExport">↓ Export</button>
+          <button class="btn sm" id="btnPolClear">Clear</button>
+        </div>
+        <div id="pol-groups" style="display:flex;flex-direction:column;gap:0"></div>
+        <div><button class="btn solid" id="btnPolAddGroup">+ Add Policy Group (OR)</button></div>
+      </div>
+      <div class="pol-right">
+        <div class="pjhead"><span class="pjtitle">// policy.json</span><button class="gbtn" id="btnPolCopyJson">Copy</button></div>
+        <div class="pjstats"><span class="pjstat">Groups: <strong id="pol-sg">0</strong></span><span class="pjstat">Rules: <strong id="pol-sr">0</strong></span><span class="pjstat" id="pol-sv"></span></div>
+        <pre id="pol-json">[]</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- READ POLICY PANEL -->
+  <div class="pol-panel" id="pol-panel-read">
+    <div class="reader-pane">
+
+      <div class="reader-input-card">
+        <div class="reader-input-head">
+          API Token
+          <span style="font-size:9.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink4)">required to load tenants &amp; resolve IDs</span>
+        </div>
+        <div class="reader-input-body">
+          <div class="reader-token-row">
+            <input type="password" id="reader-token" placeholder="Paste Bearer token…"/>
+            <button class="btn sm outline" id="btnLoadTenants">Load Tenants</button>
+          </div>
+          <div class="reader-status" id="reader-status-token"></div>
+        </div>
+      </div>
+
+      <div class="reader-input-card" id="reader-tenant-card" style="display:none">
+        <div class="reader-input-head">
+          Select Tenant
+          <span style="font-size:9.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink4)">loads investment policy automatically</span>
+        </div>
+        <div class="reader-input-body">
+          <select id="reader-tenant-select" style="width:100%;padding:8px 11px;font-size:13px;border:1.5px solid var(--bd);border-radius:var(--r);font-family:inherit;background:var(--surf)">
+            <option value="">— Select a tenant —</option>
+          </select>
+          <div class="reader-status" id="reader-status-tenant"></div>
+        </div>
+      </div>
+
+      <div class="reader-input-card" id="reader-manual-card">
+        <div class="reader-input-head">
+          Or Paste Policy JSON Manually
+          <span style="font-size:9.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink4)">configuration array</span>
+        </div>
+        <div class="reader-input-body">
+          <textarea class="reader-json-ta" id="reader-json-ta" placeholder='[{"configuration":[{"name":"market_cap","operator":"ge","value":1000000000,"currency_id":1},{"name":"exchange_country","operator":"isin","value":[213]}],"group":1}]'></textarea>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn sm solid" id="btnReadPolicy">Explain →</button>
+          </div>
+          <div class="reader-status" id="reader-status"></div>
+        </div>
+      </div>
+
+      <div class="explanation-card" id="explanation-card">
+        <div class="explanation-head">
+          Human-Language Explanation
+          <button class="btn xs" id="btnCopyExplanation" style="font-size:10px">Copy</button>
+        </div>
+        <div class="explanation-body" id="explanation-body"></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1103,6 +1210,337 @@ function polInit(){
   G('btnCancelImport').addEventListener('click',polCloseImport);
   G('btnDoImport').addEventListener('click',polDoImport);
   G('pol-import-modal').addEventListener('click',e=>{if(e.target===G('pol-import-modal'))polCloseImport();});
+  polInitTabs();
+  polInitReader();
+}
+
+/* ═══════════════════════════════════
+   POLICY TAB SWITCHER
+═══════════════════════════════════ */
+function polInitTabs() {
+  document.querySelectorAll('.pol-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.polTab;
+      document.querySelectorAll('.pol-tab-btn').forEach(b => {
+        const on = b.dataset.polTab === tab;
+        b.style.background = on ? 'var(--blue)' : 'var(--surf)';
+        b.style.color = on ? '#fff' : 'var(--ink3)';
+        b.classList.toggle('active', on);
+      });
+      document.querySelectorAll('.pol-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'pol-panel-' + tab);
+      });
+    });
+  });
+}
+
+/* ═══════════════════════════════════
+   POLICY READER — explain in English
+═══════════════════════════════════ */
+// Operator → human phrase
+const OP_PHRASE = {
+  ge: 'at least', le: 'at most', gt: 'greater than', lt: 'less than',
+  isin: 'one of', notin: 'not in'
+};
+// Parameter → readable name
+const PARAM_LABEL = {
+  stock_float: 'Stock float', market_cap: 'Market cap',
+  volume: 'Daily volume', exchange: 'Listed on exchange',
+  index: 'Member of index', domicile_country: 'Domicile country',
+  exchange_country: 'Exchange country'
+};
+// Currency IDs (common ones — fallback)
+const CURRENCY_FALLBACK = {1:'USD',2:'EUR',3:'GBP',4:'ILS',5:'JPY',6:'CAD',7:'AUD',8:'CHF',9:'HKD',10:'SGD'};
+
+// Resolved lookup tables (populated at runtime)
+let resolvedCountries = {};   // id → name
+let resolvedExchanges = {};   // id → name
+let resolvedCurrencies = {};  // id → code
+let resolvedIndices = {};     // id → name (from funds endpoint)
+let resolvedFunds = {};       // fund_id → name
+
+function setReaderStatus(msg, type='') {
+  const el = G('reader-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'reader-status' + (type ? ' ' + type : '');
+}
+
+// Try to fetch filter data via direct API. Falls back gracefully on CORS.
+// Railway proxy base — same origin as the enricher
+const PROXY = 'https://bw-enricher.up.railway.app';
+
+async function proxyGet(path, token, params) {
+  const url = new URL(PROXY + path);
+  if (params) Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const headers = {'Accept':'application/json'};
+  if (token) headers['X-BW-Token'] = token;
+  try {
+    const r = await fetch(url.toString(), { headers });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({error: 'HTTP ' + r.status}));
+      throw new Error(err.error || 'HTTP ' + r.status);
+    }
+    return await r.json();
+  } catch(e) { throw e; }
+}
+
+async function fetchFilters(token) {
+  const types = [
+    { key: 'countries',  map: resolvedCountries,  nameField: 'name' },
+    { key: 'exchanges',  map: resolvedExchanges,   nameField: 'name' },
+    { key: 'currencies', map: resolvedCurrencies,  nameField: 'code' },
+  ];
+  for (const { key, map, nameField } of types) {
+    setReaderStatus('Fetching ' + key + '…', 'loading');
+    try {
+      const data = await proxyGet('/api/filters', token, { type: key, language: 'en-US' });
+      const items = Array.isArray(data) ? data : (data?.data || []);
+      items.forEach(item => {
+        if (item.id != null) map[item.id] = item[nameField] || item.name || item.code || String(item.id);
+      });
+    } catch(e) {
+      console.warn('Filter fetch failed for ' + key + ':', e.message);
+    }
+  }
+}
+
+// Resolve a list of index IDs → names via Railway proxy
+async function resolveIndexIds(ids, token) {
+  if (!ids || !ids.length) return;
+  for (const id of ids) {
+    if (resolvedIndices[id]) continue;
+    try {
+      const data = await proxyGet('/api/funds/' + id, token, { language: 'en-US' });
+      resolvedIndices[id] = data.name || data.fund_name || data.security_name || ('Fund #' + id);
+    } catch(e) { resolvedIndices[id] = 'Index #' + id; }
+  }
+}
+
+function resolveId(paramName, id) {
+  if (paramName === 'exchange_country' || paramName === 'domicile_country') {
+    return resolvedCountries[id] || ('Country #' + id);
+  }
+  if (paramName === 'exchange') {
+    return resolvedExchanges[id] || ('Exchange #' + id);
+  }
+  if (paramName === 'index') {
+    return resolvedIndices[id] || ('Index #' + id);
+  }
+  return String(id);
+}
+
+function resolveCurrency(currencyId) {
+  return resolvedCurrencies[currencyId] || CURRENCY_FALLBACK[currencyId] || ('Cur#' + currencyId);
+}
+
+function formatValue(rule) {
+  const { name, operator, value, currency_id } = rule;
+  const isListParam = ['exchange','index','domicile_country','exchange_country'].includes(name);
+  const isCurrencyParam = ['market_cap','volume'].includes(name);
+  const isListOp = operator === 'isin' || operator === 'notin';
+
+  if (isListOp && Array.isArray(value)) {
+    const names = value.map(id => resolveId(name, id));
+    if (names.length <= 3) return names.join(', ');
+    return names.slice(0,3).join(', ') + ` and ${names.length - 3} more`;
+  }
+
+  // Numeric with currency
+  if (isCurrencyParam && typeof value === 'number') {
+    const cur = resolveCurrency(currency_id);
+    if (value >= 1e12) return (value/1e12).toFixed(1) + 'T ' + cur;
+    if (value >= 1e9)  return (value/1e9).toFixed(1) + 'B ' + cur;
+    if (value >= 1e6)  return (value/1e6).toFixed(1) + 'M ' + cur;
+    if (value >= 1e3)  return (value/1e3).toFixed(1) + 'K ' + cur;
+    return value + ' ' + cur;
+  }
+
+  if (name === 'stock_float') return value + '%';
+  return String(value);
+}
+
+function ruleToSentence(rule) {
+  const param = PARAM_LABEL[rule.name] || rule.name;
+  const op = OP_PHRASE[rule.operator] || rule.operator;
+  const val = formatValue(rule);
+  return `${param} is ${op} ${val}`;
+}
+
+function renderExplanation(groups) {
+  const card = G('explanation-card');
+  const body = G('explanation-body');
+  if (!card || !body) return;
+
+  const parts = [];
+  groups.forEach((g, gi) => {
+    if (gi > 0) parts.push('<div class="explanation-or-sep">— OR —</div>');
+    const rules = (g.configuration || []).filter(r => r.name && r.operator);
+    const items = rules.map(r => `<li>${ruleToSentence(r)}</li>`).join('');
+    parts.push(`
+      <div class="pol-group-block">
+        <h4>Group ${gi + 1} — all conditions must match (AND)</h4>
+        <ul>${items}</ul>
+      </div>`);
+  });
+
+  // Plain-text summary
+  const summaryParts = groups.map((g, gi) => {
+    const rules = (g.configuration || []).filter(r => r.name && r.operator);
+    return rules.map(r => ruleToSentence(r)).join(' AND ');
+  });
+  const summary = summaryParts.join(' OR ');
+
+  // Show resolved IDs legend
+  const allIds = {};
+  groups.forEach(g => (g.configuration||[]).forEach(r => {
+    if (Array.isArray(r.value)) r.value.forEach(id => {
+      const resolved = resolveId(r.name, id);
+      if (!resolved.includes('#')) allIds[id] = resolved;
+    });
+  }));
+  const idChips = Object.entries(allIds).map(([id, name]) =>
+    `<span class="id-chip">${id} → ${name}</span>`
+  ).join('');
+
+  body.innerHTML = parts.join('') +
+    `<div class="explanation-summary">
+      <strong>In plain English:</strong><br/>
+      A security qualifies if: ${summary || 'no rules defined'}.
+    </div>` +
+    (idChips ? `<div class="resolved-ids-wrap" style="margin-top:10px">
+      <details><summary>Resolved IDs</summary><div style="margin-top:6px">${idChips}</div></details>
+    </div>` : '');
+
+  card.classList.add('visible');
+  anime({ targets: '.pol-group-block', opacity:[0,1], translateY:[10,0], duration:300, delay:anime.stagger(60), easing:'easeOutCubic' });
+}
+
+async function explainPolicy(groups, token) {
+  const btnExplain = G('btnReadPolicy');
+  if (btnExplain) { btnExplain.disabled = true; btnExplain.textContent = 'Loading…'; }
+  setReaderStatus('Fetching filter lookups…', 'loading');
+  await fetchFilters(token);
+
+  const indexIds = [];
+  groups.forEach(g => (g.configuration||[]).forEach(r => {
+    if (r.name === 'index' && Array.isArray(r.value)) indexIds.push(...r.value);
+  }));
+  if (indexIds.length) {
+    setReaderStatus('Resolving index names…', 'loading');
+    await resolveIndexIds([...new Set(indexIds)], token);
+  }
+
+  setReaderStatus('Rendering…', 'loading');
+  renderExplanation(groups);
+
+  const resolved = Object.keys(resolvedCountries).length + Object.keys(resolvedExchanges).length;
+  setReaderStatus(
+    resolved > 0 ? '✓ Resolved ' + resolved + ' IDs from Bridgewise API' : '✓ Done (IDs shown as numbers — token may lack filter scope)',
+    'ok'
+  );
+  if (btnExplain) { btnExplain.disabled = false; btnExplain.textContent = 'Explain →'; }
+}
+
+async function polInitReader() {
+  if (!G('btnReadPolicy')) return;
+
+  // Restore saved token
+  const saved = sessionStorage.getItem('bw_token');
+  if (saved && G('reader-token')) G('reader-token').value = saved;
+
+  // ── Load Tenants button ──
+  G('btnLoadTenants')?.addEventListener('click', async () => {
+    const token = G('reader-token')?.value.trim();
+    if (!token) {
+      G('reader-status-token').textContent = 'Paste a Bearer token first.';
+      G('reader-status-token').className = 'reader-status err';
+      return;
+    }
+    sessionStorage.setItem('bw_token', token);
+    G('reader-status-token').textContent = 'Loading tenants…';
+    G('reader-status-token').className = 'reader-status loading';
+    G('btnLoadTenants').disabled = true;
+
+    try {
+      const tenants = await proxyGet('/api/tenants', token);
+      const sel = G('reader-tenant-select');
+      sel.innerHTML = '<option value="">— Select a tenant —</option>';
+      tenants.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        sel.appendChild(opt);
+      });
+      G('reader-tenant-card').style.display = '';
+      G('reader-status-token').textContent = '✓ ' + tenants.length + ' tenants loaded';
+      G('reader-status-token').className = 'reader-status ok';
+    } catch(e) {
+      G('reader-status-token').textContent = '✗ ' + e.message;
+      G('reader-status-token').className = 'reader-status err';
+    }
+    G('btnLoadTenants').disabled = false;
+  });
+
+  // ── Tenant select → auto-load policy ──
+  G('reader-tenant-select')?.addEventListener('change', async () => {
+    const tenantId = G('reader-tenant-select').value;
+    const token = G('reader-token')?.value.trim();
+    if (!tenantId) return;
+
+    const sel = G('reader-tenant-select');
+    const tenantName = sel.options[sel.selectedIndex]?.textContent || tenantId;
+    G('reader-status-tenant').textContent = 'Loading policy for ' + tenantName + '…';
+    G('reader-status-tenant').className = 'reader-status loading';
+
+    try {
+      const data = await proxyGet('/api/tenant-policy/' + tenantId, token);
+      // The response may be the array directly or wrapped in a key
+      const groups = Array.isArray(data) ? data : (data?.investment_policy || data?.configuration || data?.policies || data?.data || []);
+
+      if (!groups.length) {
+        G('reader-status-tenant').textContent = '⚠ No investment policy configured for this tenant';
+        G('reader-status-tenant').className = 'reader-status err';
+        return;
+      }
+
+      // Also populate the manual textarea for reference
+      if (G('reader-json-ta')) G('reader-json-ta').value = JSON.stringify(groups, null, 2);
+
+      G('reader-status-tenant').textContent = '✓ Policy loaded — ' + groups.length + ' group(s)';
+      G('reader-status-tenant').className = 'reader-status ok';
+
+      await explainPolicy(groups, token);
+    } catch(e) {
+      G('reader-status-tenant').textContent = '✗ ' + e.message;
+      G('reader-status-tenant').className = 'reader-status err';
+    }
+  });
+
+  // ── Manual explain button ──
+  G('btnReadPolicy')?.addEventListener('click', async () => {
+    const raw = G('reader-json-ta')?.value.trim();
+    const token = G('reader-token')?.value.trim();
+    if (!raw) { setReaderStatus('Paste a policy JSON first.', 'err'); return; }
+    let groups;
+    try {
+      groups = JSON.parse(raw);
+      if (!Array.isArray(groups)) throw new Error('Expected a JSON array');
+    } catch(e) { setReaderStatus('Invalid JSON: ' + e.message, 'err'); return; }
+    if (token) sessionStorage.setItem('bw_token', token);
+    await explainPolicy(groups, token);
+  });
+
+  // ── Copy explanation ──
+  G('btnCopyExplanation')?.addEventListener('click', async () => {
+    const body = G('explanation-body');
+    if (!body) return;
+    try {
+      await navigator.clipboard.writeText(body.innerText);
+      G('btnCopyExplanation').textContent = '✓ Copied';
+      setTimeout(() => G('btnCopyExplanation').textContent = 'Copy', 2000);
+    } catch(e) {}
+  });
 }
 
 /* ═══════════════════════════════════
