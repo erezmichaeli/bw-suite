@@ -865,7 +865,7 @@ const calculate = async () => {
       G('slotReason').textContent=reason; G('slotSlaText').textContent='—';
       updateGauge(priority);
     } else {
-      const {severity,explanation,sla}=decideEscalation();
+      const {severity,explanation,sla,breakdown}=decideEscalation();
       const cls={Critical:'sb-crit',High:'sb-high',Normal:'sb-norm'};
       G('badge').className='sev-badge pop '+(cls[severity]||'sb-norm'); G('badge').textContent=severity;
       G('slotReason').textContent=explanation; G('slotSlaText').textContent=sla;
@@ -1120,16 +1120,18 @@ const COLOR_MAP = {
 
 function renderBreakdown(rows) {
   const card = G('breakdown-card'), body = G('breakdown-body');
-  if (!card || !body || !rows) return;
+  if (!card || !body || !rows || !rows.length) return;
   card.style.display = '';
+  const dot = c => c==='red'?'🔴':c==='amber'?'🟡':c==='purple'?'🟣':'🟢';
   body.innerHTML = rows.map(r => {
     const cm = COLOR_MAP[r.c] || COLOR_MAP.green;
+    const boldStyle = r.bold ? 'font-weight:700;color:var(--ink)' : '';
     return '<div class="bd-row" style="background:'+cm.bg+';border:1px solid '+cm.bc+'">'
-      + '<span class="bd-label" style="'+(r.bold?'font-weight:700;color:var(--ink)':'')+'">'+(r.label||'')+'</span>'
-      + '<span class="bd-score" style="background:'+cm.bc+';color:'+cm.tc+'">'+cm.tc.includes('991')?'🔴':cm.tc.includes('92400')?'🟡':'🟢'+'</span>'
+      + '<span class="bd-label" style="'+boldStyle+'">'+(r.label||'')+'</span>'
+      + '<span class="bd-score" style="background:'+cm.bc+';color:'+cm.tc+'">'+dot(r.c)+'</span>'
       + '</div>';
   }).join('');
-  anime({targets:body.querySelectorAll('.bd-row'),translateX:[-10,0],opacity:[0,1],duration:280,delay:anime.stagger(45),easing:'easeOutCubic'});
+  anime({targets:Array.from(body.querySelectorAll('.bd-row')),translateX:[-10,0],opacity:[0,1],duration:280,delay:anime.stagger(45),easing:'easeOutCubic'});
 }
 
 function initWakeToggle() {
