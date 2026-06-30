@@ -133,7 +133,8 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
 #s-severity .body{flex:1;overflow:hidden;display:grid;grid-template-columns:1.4fr 1fr;gap:14px;padding:16px 20px}
 .sev-left{display:flex;flex-direction:column;gap:10px;overflow:hidden;min-height:0}
 .sev-scroll{flex:1;overflow-y:auto;min-height:0}
-.sev-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+/* Right panel: fixed layout, no scroll — everything must fit */
+.sev-right{display:flex;flex-direction:column;gap:8px;overflow:hidden;min-height:0}
 
 /* Typeahead — position:fixed escapes ALL overflow:hidden ancestors */
 .suggest{position:relative}
@@ -150,8 +151,25 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
 .ta-sdot{width:7px;height:7px;border-radius:50%;background:var(--purple);flex-shrink:0}
 
 /* Result card */
-#sev-result-card{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(246,250,255,.95));backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:20px;box-shadow:0 4px 24px rgba(37,99,235,.1),var(--sh),inset 0 1px 0 rgba(255,255,255,1);overflow:hidden}
-.rcard-top{padding:14px 18px 10px;background:linear-gradient(135deg,rgba(37,99,235,.05),rgba(37,99,235,.02));border-bottom:1px solid rgba(37,99,235,.08);display:flex;align-items:center;justify-content:space-between}
+#sev-result-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(246,250,255,.95));
+  backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);
+  border-radius:20px;
+  box-shadow:0 4px 24px rgba(37,99,235,.1),var(--sh),inset 0 1px 0 rgba(255,255,255,1);
+  overflow:hidden;flex-shrink:0;
+}
+.rcard-top{
+  padding:12px 16px 10px;
+  background:linear-gradient(135deg,rgba(37,99,235,.05),rgba(37,99,235,.02));
+  border-bottom:1px solid rgba(37,99,235,.08);
+  display:flex;align-items:center;gap:12px;
+}
+.rcard-badges{flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Mini inline gauge sits in top-right of result card */
+.rcard-gauge-mini{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px}
+.gauge-mini-wrap{position:relative;width:80px;height:44px}
+.gauge-mini-label{font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;text-align:center}
+.gauge-mini-score{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-align:center;line-height:1.3;transition:color .4s}
 .bw-mark{font-size:9px;font-weight:800;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;opacity:.45}
 .sev-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;font-size:15px;font-weight:800;letter-spacing:.01em;box-shadow:var(--sh)}
 .sev-badge.pop{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1)}
@@ -165,71 +183,55 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
 .sb-p3{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#065f46;border:1.5px solid #4ade80;box-shadow:0 4px 16px rgba(16,185,129,.2)}
 .strat-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:999px;font-size:11px;font-weight:700;background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#5b21b6;border:1.5px solid #a78bfa;box-shadow:0 0 16px rgba(124,58,237,.2);animation:stratGlow 2.5s ease-in-out infinite}
 @keyframes stratGlow{0%,100%{box-shadow:0 0 8px rgba(124,58,237,.15)}50%{box-shadow:0 0 22px rgba(124,58,237,.45)}}
-.rslot{background:rgba(248,250,255,.7);border:1px solid rgba(37,99,235,.08);border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.5;transition:var(--t)}
+.rslot{background:rgba(248,250,255,.7);border:1px solid rgba(37,99,235,.08);border-radius:9px;padding:7px 12px;font-size:12px;line-height:1.4;transition:var(--t)}
 .rslot:hover{background:rgba(37,99,235,.04);border-color:rgba(37,99,235,.15)}
-.rslot strong{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:3px}
+.rslot strong{display:block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:2px}
 .rslot span{color:var(--ink2)}
 
-/* Gauge */
-.gauge-wrap{background:rgba(255,255,255,.72);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.85);border-radius:var(--r-xl);box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.95);padding:16px 14px 10px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}
-.gauge-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(37,99,235,.07),transparent 65%);pointer-events:none}
-.gauge-canvas-wrap{position:relative;width:160px;height:88px;margin:0 auto}
-.gauge-score{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1;white-space:nowrap;text-align:center;width:130px}
-.gauge-lbl{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-top:6px;text-align:center}
+/* Gauge moved inline into result card */
 
-/* Wake R&D toggle */
-.wake-toggle-wrap{
-  display:none; /* shown only when Critical */
-  background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(239,68,68,.04));
-  border:1.5px solid rgba(239,68,68,.25);
-  border-radius:var(--r-xl);padding:12px 16px;
-  flex-direction:row;align-items:center;gap:12px;
-  transition:var(--t);
-}
-.wake-toggle-wrap.visible{display:flex}
-.wake-toggle-label{flex:1;font-size:12px;font-weight:600;color:var(--ink2);line-height:1.4}
-.wake-toggle-label span{display:block;font-size:10.5px;font-weight:400;color:var(--ink3);margin-top:2px}
-.wake-switch{position:relative;width:44px;height:24px;flex-shrink:0}
-.wake-switch input{opacity:0;width:0;height:0;position:absolute}
-.wake-slider{
-  position:absolute;inset:0;border-radius:999px;
-  background:#d1d5db;cursor:pointer;
-  transition:.25s cubic-bezier(.4,0,.2,1);
-}
-.wake-slider::before{
-  content:'';position:absolute;
-  height:18px;width:18px;left:3px;bottom:3px;
-  background:#fff;border-radius:50%;
-  transition:.25s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 1px 4px rgba(0,0,0,.18);
-}
-.wake-switch input:checked + .wake-slider{background:var(--red)}
-.wake-switch input:checked + .wake-slider::before{transform:translateX(20px)}
-.wake-active-banner{
+/* Wake R&D Indicator */
+.wake-indicator{
   display:none;
-  background:linear-gradient(135deg,#fee2e2,#fecaca);
+  background:linear-gradient(135deg,#7f1d1d,#991b1b);
   border:1.5px solid #f87171;
-  border-radius:var(--r-lg);padding:10px 14px;
-  font-size:12px;font-weight:700;color:#991b1b;
-  align-items:center;gap:8px;
-  animation:wakeFlash 1.5s ease-in-out 2;
+  border-radius:var(--r-xl);
+  padding:14px 16px;
+  flex-direction:column;
+  gap:6px;
+  animation:wakeBreath 1.8s ease-in-out infinite;
 }
-.wake-active-banner.on{display:flex}
-@keyframes wakeFlash{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 0 6px rgba(239,68,68,.25)}}
+.wake-indicator.visible{display:flex}
+@keyframes wakeBreath{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0),var(--sh)}
+  50%{box-shadow:0 0 0 8px rgba(239,68,68,.2),0 0 28px rgba(239,68,68,.3)}
+}
+.wake-top{display:flex;align-items:center;gap:10px}
+.wake-siren{font-size:22px;animation:sirenSpin .6s ease-in-out infinite alternate;transform-origin:center}
+@keyframes sirenSpin{from{transform:rotate(-15deg) scale(1)}to{transform:rotate(15deg) scale(1.1)}}
+.wake-text{flex:1}
+.wake-title{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.wake-sub{font-size:10.5px;color:rgba(255,200,200,.8);margin-top:2px;line-height:1.4}
+.wake-reason{
+  font-size:10px;font-weight:600;
+  background:rgba(0,0,0,.2);
+  color:rgba(255,210,210,.9);
+  border-radius:6px;padding:5px 9px;
+  border-left:2px solid rgba(255,100,100,.5);
+  line-height:1.5;
+}
 
-/* Score breakdown */
-.breakdown-wrap{display:flex;flex-direction:column;gap:4px}
+/* Score breakdown — 2-col grid, fits without scrolling */
+.breakdown-outer{flex:1;min-height:0;overflow:hidden;border-radius:var(--r-xl);background:rgba(255,255,255,.72);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.85);box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.95)}
+.breakdown-head{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);padding:9px 14px 7px;border-bottom:1px solid var(--bd)}
+.breakdown-wrap{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px 10px}
 .bd-row{
   display:flex;justify-content:space-between;align-items:center;
-  padding:6px 10px;border-radius:8px;font-size:11.5px;
-  transition:transform .15s;
+  padding:5px 8px;border-radius:7px;font-size:10.5px;
 }
-.bd-row:hover{transform:translateX(2px)}
-.bd-label{color:var(--ink2);flex:1}
-.bd-score{
-  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
-  padding:2px 7px;border-radius:6px;min-width:32px;text-align:center;
-}
+.bd-row:hover{opacity:.85}
+.bd-label{color:var(--ink2);flex:1;line-height:1.3;font-size:10.5px}
+.bd-score{font-size:12px;flex-shrink:0;margin-left:4px}
 
 /* Client list */
 .clist{list-style:none;display:flex;flex-direction:column;gap:4px;margin-top:8px}
@@ -432,54 +434,49 @@ textarea{resize:vertical;min-height:60px;line-height:1.55}
     </div>
 
     <div class="sev-right">
-      <div id="sev-result-card">
+
+      <!-- Result card — gauge merged into header row -->
+      <div id="sev-result-card" style="flex-shrink:0">
         <div class="rcard-top">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:38px">
+          <div class="rcard-badges">
             <div id="badge" class="sev-badge sb-norm" role="status" aria-live="polite">Normal</div>
             <div id="badge2" class="sev-badge sb-p2" role="status" aria-live="polite" style="display:none">P2</div>
             <div class="strat-pill" id="strategicBadge" style="display:none">⭐ Strategic</div>
           </div>
-          <div class="bw-mark">Bridgewise</div>
+          <!-- Mini gauge inline -->
+          <div class="rcard-gauge-mini">
+            <div class="gauge-mini-wrap">
+              <canvas id="sev-gauge" width="80" height="44"></canvas>
+            </div>
+            <div class="gauge-mini-score" id="gauge-score">—</div>
+            <div class="gauge-mini-label">Severity</div>
+          </div>
+          <div class="bw-mark" style="align-self:flex-start">BW</div>
         </div>
-        <div style="padding:14px 18px;display:flex;flex-direction:column;gap:8px">
+        <div style="padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
           <div class="rslot"><strong>Customer</strong><span id="slotCustomer">—</span></div>
-          <div class="rslot"><strong>Description</strong><span id="slotDesc">—</span></div>
           <div class="rslot"><strong>Timestamp</strong><span id="slotTimestamp">—</span></div>
-          <div class="rslot" id="slotSLA"><strong>SLA Target</strong><span id="slotSlaText">—</span></div>
-          <div class="rslot"><strong>Assessment Logic</strong><span id="slotReason">—</span></div>
+          <div class="rslot" id="slotSLA" style="grid-column:1/-1"><strong>SLA Target</strong><span id="slotSlaText">—</span></div>
+          <div class="rslot" style="grid-column:1/-1"><strong>Description</strong><span id="slotDesc">—</span></div>
         </div>
       </div>
 
-      <div class="gauge-wrap" id="gauge-wrap">
-        <div class="gauge-canvas-wrap">
-          <canvas id="sev-gauge" width="160" height="88"></canvas>
-          <div class="gauge-score" id="gauge-score">—</div>
+      <!-- Wake R&D Indicator — auto-appears for edge cases -->
+      <div class="wake-indicator" id="wake-indicator" style="flex-shrink:0">
+        <div class="wake-top">
+          <span class="wake-siren">🚨</span>
+          <div class="wake-text">
+            <div class="wake-title">Wake R&amp;D On-Call Now</div>
+            <div class="wake-sub">This incident cannot wait until morning</div>
+          </div>
         </div>
-        <div class="gauge-lbl">Severity Level</div>
+        <div class="wake-reason" id="wake-reason">—</div>
       </div>
 
-      <!-- Wake R&D toggle — only visible on Critical -->
-      <div class="wake-toggle-wrap" id="wake-toggle-wrap">
-        <div class="wake-toggle-label">
-          🚨 Wake R&amp;D on-call now
-          <span>Toggle on if this cannot wait until morning</span>
-        </div>
-        <label class="wake-switch">
-          <input type="checkbox" id="wake-toggle"/>
-          <span class="wake-slider"></span>
-        </label>
-      </div>
-
-      <div class="wake-active-banner" id="wake-banner">
-        🔔 R&amp;D ON-CALL WAKE INITIATED — Immediate response required
-      </div>
-
-      <!-- Score breakdown -->
-      <div class="card" id="breakdown-card" style="display:none">
-        <div class="card-head">Score Breakdown</div>
-        <div class="card-body" style="gap:5px">
-          <div class="breakdown-wrap" id="breakdown-body"></div>
-        </div>
+      <!-- Score breakdown — 2-col grid, no scroll, fills remaining space -->
+      <div class="breakdown-outer" id="breakdown-card" style="display:none">
+        <div class="breakdown-head">Score Breakdown</div>
+        <div class="breakdown-wrap" id="breakdown-body"></div>
       </div>
     </div>
   </div>
@@ -718,7 +715,7 @@ function enterScreen(id) {
   const el = G('s-'+id);
   gsap.fromTo(el, {opacity:0,y:10}, {opacity:1,y:0,duration:.24,ease:'power2.out'});
   // Anime.js stagger on cards
-  const cards = el.querySelectorAll('.gcard,.card,.pgcard,.gauge-wrap,.pol-tb');
+  const cards = el.querySelectorAll('.gcard,.card,.pgcard,.pol-tb,.breakdown-outer,.wake-indicator');
   if (cards.length) {
     anime({ targets: cards, opacity:[0,1], translateY:[18,0], duration:350, delay:anime.stagger(55,{start:40}), easing:'easeOutCubic' });
   }
@@ -734,12 +731,15 @@ document.addEventListener('click', e => {
 ═══════════════════════════════════ */
 let gaugeChart = null;
 function initGauge() {
-  const ctx = G('sev-gauge')?.getContext('2d');
-  if (!ctx) return;
+  const canvas = G('sev-gauge');
+  if (!canvas) return;
+  // Set actual pixel size for crisp rendering
+  canvas.width = 80; canvas.height = 44;
+  const ctx = canvas.getContext('2d');
   gaugeChart = new Chart(ctx, {
     type:'doughnut',
     data:{ datasets:[{ data:[0,4], backgroundColor:['#3b82f6','#e0e6f5'], borderWidth:0, circumference:180, rotation:270 }]},
-    options:{ responsive:false, cutout:'72%', plugins:{ legend:{display:false}, tooltip:{enabled:false}}, animation:{ duration:700, easing:'easeOutCubic'}}
+    options:{ responsive:false, cutout:'68%', plugins:{ legend:{display:false}, tooltip:{enabled:false}}, animation:{ duration:700, easing:'easeOutCubic'}}
   });
 }
 function updateGauge(severity) {
@@ -750,10 +750,10 @@ function updateGauge(severity) {
   gaugeChart.data.datasets[0].data=[s,4-s];
   gaugeChart.data.datasets[0].backgroundColor=[c,'#e0e6f5'];
   gaugeChart.update();
+  // Score label sits BELOW the arc (not inside canvas-wrap)
   const el=G('gauge-score');
   el.textContent=severity;
   el.style.color=c;
-  el.style.fontSize=severity.length>6?'11px':severity.length>4?'14px':'20px';
   anime({targets:el,scale:[0.5,1],opacity:[0,1],duration:500,easing:'easeOutElastic(1,.6)'});
 }
 
@@ -798,7 +798,7 @@ const switchMode = mode => {
   G('slotSLA').style.display=isJ?'none':'block';
   G('badge').style.display=isJ?'none':'inline-flex';
   G('badge2').style.display=isJ?'inline-flex':'none';
-  renderStrategicUI(deriveStrategic()); G('slotReason').textContent='—';
+  renderStrategicUI(deriveStrategic());
 };
 
 const deriveBusinessImpact = () => {
@@ -862,26 +862,25 @@ const calculate = async () => {
       const {priority,reason}=decideJira();
       const cls={P0:'sb-p0',P1:'sb-p1',P2:'sb-p2',P3:'sb-p3'};
       G('badge2').className='sev-badge pop '+(cls[priority]||'sb-p2'); G('badge2').textContent=priority;
-      G('slotReason').textContent=reason; G('slotSlaText').textContent='—';
+      G('slotSlaText').textContent='—';
       updateGauge(priority);
     } else {
       const {severity,explanation,sla,breakdown}=decideEscalation();
       const cls={Critical:'sb-crit',High:'sb-high',Normal:'sb-norm'};
       G('badge').className='sev-badge pop '+(cls[severity]||'sb-norm'); G('badge').textContent=severity;
-      G('slotReason').textContent=explanation; G('slotSlaText').textContent=sla;
+      G('slotSlaText').textContent=sla;
       updateGauge(severity);
       renderBreakdown(breakdown);
 
-      // Wake R&D toggle — only for Critical
-      const wakeWrap=G('wake-toggle-wrap');
-      if(severity==='Critical'){
-        wakeWrap.classList.add('visible');
-      } else {
-        wakeWrap.classList.remove('visible');
-        // Reset toggle when no longer critical
-        G('wake-toggle').checked=false;
-        G('wake-banner').classList.remove('on');
-      }
+      // Wake R&D indicator — appears for edge cases that can't wait
+      evaluateWakeIndicator(
+        severity,
+        getChip('q1ImpairmentChips'),
+        getChip('q2DataChips'),
+        getChip('q3ScopeChips'),
+        getChip('whoChips'),
+        deriveStrategic()
+      );
     }
     renderStrategicUI(deriveStrategic());
     gsap.fromTo('#sev-result-card',{scale:.97,opacity:.75},{scale:1,opacity:1,duration:.35,ease:'back.out(2)'});
@@ -926,11 +925,9 @@ const resetAll = () => {
   renderStrategicUI(false);
   G('badge').className='sev-badge sb-norm'; G('badge').textContent='Normal';
   G('badge2').className='sev-badge sb-p2'; G('badge2').textContent='P2';
-  G('slotCustomer').textContent='—'; G('slotDesc').textContent='—'; G('slotTimestamp').textContent='—'; G('slotSlaText').textContent='—'; G('slotReason').textContent='—';
-  // Reset wake toggle and breakdown
-  if(G('wake-toggle')) G('wake-toggle').checked=false;
-  if(G('wake-banner')) G('wake-banner').classList.remove('on');
-  if(G('wake-toggle-wrap')) G('wake-toggle-wrap').classList.remove('visible');
+  G('slotCustomer').textContent='—'; G('slotDesc').textContent='—'; G('slotTimestamp').textContent='—'; G('slotSlaText').textContent='—';
+  // Reset wake indicator and breakdown
+  if(G('wake-indicator')) G('wake-indicator').classList.remove('visible');
   if(G('breakdown-card')) G('breakdown-card').style.display='none';
   G('customer')?.focus();
 };
@@ -1134,17 +1131,33 @@ function renderBreakdown(rows) {
   anime({targets:Array.from(body.querySelectorAll('.bd-row')),translateX:[-10,0],opacity:[0,1],duration:280,delay:anime.stagger(45),easing:'easeOutCubic'});
 }
 
-function initWakeToggle() {
-  const toggle = G('wake-toggle'), banner = G('wake-banner');
-  if (!toggle || !banner) return;
-  toggle.addEventListener('change', () => {
-    if (toggle.checked) {
-      banner.classList.add('on');
-      gsap.fromTo(banner, {scale:.9,opacity:0}, {scale:1,opacity:1,duration:.3,ease:'back.out(2)'});
-    } else {
-      banner.classList.remove('on');
-    }
-  });
+function evaluateWakeIndicator(severity, q1, q2, q3, who, isStrategic) {
+  // Edge cases that require waking R&D — cannot wait until morning
+  const ind = G('wake-indicator');
+  const reason = G('wake-reason');
+  if (!ind || !reason) return;
+
+  let wakeReason = null;
+
+  if (q1 === 'complete' && (who === 'all' || who === 'group')) {
+    wakeReason = 'Complete outage affecting multiple or all customers — service is fully down at scale';
+  } else if (q1 === 'complete' && isStrategic) {
+    wakeReason = 'Complete outage for a strategic client — immediate escalation required';
+  } else if (q2 === 'incorrect' && (q3 === 'multi' || q3 === 'market')) {
+    wakeReason = 'Incorrect/misleading data across market or multi-universe scope — risk of widespread bad decisions';
+  } else if (who === 'all' && severity === 'Critical') {
+    wakeReason = 'All customers impacted with Critical severity — full service degradation';
+  } else if (isStrategic && q1 === 'complete') {
+    wakeReason = 'Strategic client experiencing complete outage';
+  }
+
+  if (wakeReason) {
+    reason.textContent = wakeReason;
+    ind.classList.add('visible');
+    gsap.fromTo(ind, {scale:.94,opacity:0,y:8}, {scale:1,opacity:1,y:0,duration:.4,ease:'back.out(2)'});
+  } else {
+    ind.classList.remove('visible');
+  }
 }
 
 /* ═══════════════════════════════════
@@ -1158,7 +1171,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();switchMode(btn.dataset.mode);}});
   });
   switchMode('escalation');
-  initWakeToggle();
   G('btnCalc').addEventListener('click',calculate);
   G('btnSnap').addEventListener('click',captureScreenshot);
   G('btnReset').addEventListener('click',resetAll);
